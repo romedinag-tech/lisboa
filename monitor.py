@@ -271,8 +271,9 @@ def precio_min(filas):
 
 def correr(key, consultas, modo):
     dia = fecha_chile()
+    # el modo diario no repite en el mismo día (reintentos de la tarea); "fijas" sí puede
     hechas = {(f["fecha"], f["clave"]) for f in leer_csv("consultas.csv")
-              if f["estado"] == "ok" and f["modo"] == modo}
+              if f["estado"] == "ok" and f["modo"] == modo == "diario"}
     saldo = creditos(key)
     print(f"Créditos disponibles al inicio: {saldo}")
     hist = []
@@ -522,7 +523,7 @@ def publicar():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("modo", choices=["diario", "maletas", "factibilidad", "dashboard", "plan"])
+    ap.add_argument("modo", choices=["diario", "fijas", "maletas", "factibilidad", "dashboard", "plan"])
     ap.add_argument("--dias", type=int, default=3)
     ap.add_argument("--publicar", action="store_true", help="commit y push de data/ e index.html al terminar")
     a = ap.parse_args()
@@ -555,6 +556,9 @@ def ejecutar(a):
         correr(key, plan_del_dia(fecha_chile()), "diario")
         if fecha_chile().weekday() == SA["maletas_dia_semana"]:
             modo_maletas(key)
+    elif a.modo == "fijas":
+        # corrida extra (p. ej. durante un Cyber): solo fechas base, se puede repetir en el día
+        correr(key, catalogo()[0], "fijas")
     elif a.modo == "maletas":
         modo_maletas(key)
     construir_dashboard()
