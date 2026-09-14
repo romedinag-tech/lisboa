@@ -5,7 +5,8 @@ Consulta Google Flights a través de SerpApi, guarda cada respuesta cruda
 (comprimida, sin la clave), la destila a CSV y regenera index.html.
 
 Uso:
-  python -X utf8 monitor.py diario          # consultas del día (lo corre GitHub Actions)
+  python -X utf8 monitor.py diario          # consultas del día
+  python -X utf8 monitor.py diario --publicar   # ídem + commit y push (lo corre la tarea de Windows)
   python -X utf8 monitor.py maletas         # tarifas y equipaje de lo más barato por corredor
   python -X utf8 monitor.py factibilidad    # prueba chica antes de dejarlo corriendo
   python -X utf8 monitor.py dashboard       # solo regenera index.html desde los CSV
@@ -482,11 +483,60 @@ def construir_dashboard():
     print(f"index.html regenerado: {len(ops)} opciones con precio, {len(ok)} consultas ok")
 
 
+class Tee:
+    """Duplica la salida a la consola y al log de la corrida."""
+    def __init__(self, *flujos):
+        self.flujos = [f for f in flujos if f is not None]  # pythonw no tiene consola
+
+    def write(self, s):
+        for f in self.flujos:
+            f.write(s)
+            f.flush()
+
+    def flush(self):
+        for f in self.flujos:
+            f.flush()
+
+
+def git(*args):
+    import subprocess
+    r = subprocess.run(["git", *args], cwd=RAIZ, capture_output=True, text=True, encoding="utf-8")
+    salida = (r.stdout + r.stderr).strip()
+    if salida:
+        print(f"  git {' '.join(args)}: {salida}")
+    return r.returncode
+
+
+def publicar():
+    """Sube el registro y el dashboard a GitHub (Pages se actualiza solo)."""
+    git("add", "data", "index.html")
+    if git("diff", "--cached", "--quiet") == 0:
+        print("Publicar: sin cambios.")
+        return 0
+    if git("commit", "-q", "-m", f"Registro {fecha_chile().isoformat()}") != 0:
+        return 1
+    codigo = git("push", "-q", "origin", "main")
+    print("Publicado en GitHub." if codigo == 0 else f"ERROR al hacer push (código {codigo}).")
+    return codigo
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("modo", choices=["diario", "maletas", "factibilidad", "dashboard", "plan"])
     ap.add_argument("--dias", type=int, default=3)
+    ap.add_argument("--publicar", action="store_true", help="commit y push de data/ e index.html al terminar")
     a = ap.parse_args()
+    if a.publicar:
+        (RAIZ / "logs").mkdir(exist_ok=True)
+        log = (RAIZ / "logs" / f"{fecha_chile():%Y-%m-%d}_{a.modo}.log").open("a", encoding="utf-8")
+        sys.stdout = sys.stderr = Tee(sys.__stdout__, log)
+        print(f"\n=== {ahora():%Y-%m-%d %H:%M} UTC · {a.modo} ===")
+    ejecutar(a)
+    if a.publicar:
+        sys.exit(publicar())
+
+
+def ejecutar(a):
     if a.modo == "plan":
         for i in range(a.dias):
             d = fecha_chile() + dt.timedelta(i)

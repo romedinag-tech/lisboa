@@ -30,15 +30,18 @@ solo se consultan las fechas base.
 | `data/maletas.csv` | tarifas y equipaje (lectura de los domingos) |
 | `data/raw/AAAA-MM-DD/*.json.gz` | respuestas originales, sin la clave |
 
-## Uso local
+## Dónde corre
+
+Todo corre en el PC de Rodrigo y se sube desde ahí: la clave nunca sale del equipo. Una tarea programada de
+Windows ejecuta cada día `monitor.py diario --publicar`, que consulta, regenera `index.html`, hace commit y push,
+y GitHub Pages publica. Si el PC está apagado a la hora programada, la tarea corre al encenderlo; un día sin
+encender queda sin registro (no se rellena). La salida de cada corrida queda en `logs/`, fuera del repo.
 
 ```bash
 python -X utf8 monitor.py plan --dias 5
 python -X utf8 monitor.py factibilidad
+python -X utf8 monitor.py diario --publicar
 python -X utf8 monitor.py dashboard
 ```
 
-La clave se lee de `SERPAPI_KEY` o de `~/.secrets/serpapi.txt`, que queda **fuera** del repo. En GitHub va
-como secreto del repositorio con el nombre `SERPAPI_KEY`.
-
-El registro lo escribe GitHub Actions: antes de correr algo en local que modifique `data/`, hacer `git pull`.
+La clave se lee de `SERPAPI_KEY` o de `~/.secrets/serpapi.txt`, que queda **fuera** del repo.
