@@ -5,11 +5,15 @@ decidir cuándo comprar. El dashboard está en `index.html` y se publica en GitH
 
 ## Qué se consulta
 
-- 2 adultos + 1 niño, desde CCP, ida 12 jul y vuelta 31 jul 2027, con ±2 días en cada extremo.
+- 2 adultos + 1 niño, ida 12 jul y vuelta 31 jul 2027, con ±2 días en cada extremo.
+- **Origen principal Santiago (SCL)**; Concepción (CCP) solo como referencia. Medido el 2026-09-14: el mismo par
+  de vuelos LA 706 + IB 1151 costaba $5.202.627 como pasaje único desde CCP y $3.176.457 desde SCL. El tramo
+  CCP–SCL se compra aparte y después; para comparar se usa el valor medido en `config.json`.
 - Destinos: Oporto, Lisboa y los dos itinerarios que llegan a una ciudad y vuelven desde la otra.
-- **Todos los días** (2 créditos): fechas base a OPO y a LIS.
-- **Por turnos** (4 créditos diarios): las 48 combinaciones restantes de fechas y los 2 itinerarios combinados.
-  La vuelta completa toma 12,5 días.
+- **Todos los días** (3 créditos): fechas base SCL→OPO, SCL→LIS y CCP→OPO (referencia).
+- **Por turnos** (3 créditos diarios): las 48 combinaciones restantes de fechas desde SCL y los 2 itinerarios
+  combinados. La vuelta completa toma 16,7 días.
+- Búsqueda normal, no `deep_search`: en la prueba, la profunda trajo 2 opciones y la normal 8, más baratas.
 - **Domingos** (6 créditos): tarifa y equipaje de la opción más barata de las 3 rutas más económicas.
 - Ruta = primera escala fuera de Chile: Madrid, Brasil, Lima, París u otra.
 
