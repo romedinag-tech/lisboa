@@ -480,7 +480,7 @@ def construir_dashboard():
     }
     plantilla = (RAIZ / "plantilla.html").read_text(encoding="utf-8")
     js = json.dumps(datos, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    (RAIZ / "index.html").write_text(plantilla.replace("/*__DATOS__*/null", js), encoding="utf-8")
+    (RAIZ / "index.html").write_text(plantilla.replace("/*__DATOS__*/null", js), encoding="utf-8", newline="\n")
     print(f"index.html regenerado: {len(ops)} opciones con precio, {len(ok)} consultas ok")
 
 
@@ -510,7 +510,7 @@ def git(*args):
 
 def publicar():
     """Sube el registro y el dashboard a GitHub (Pages se actualiza solo)."""
-    git("add", "data", "index.html")
+    git("add", *[p for p in ("data", "index.html") if (RAIZ / p).exists()])
     if git("diff", "--cached", "--quiet") == 0:
         print("Publicar: sin cambios.")
         return 0
