@@ -1,0 +1,30 @@
+{
+  "viaje": {
+    "origen": "CCP",
+    "pasajeros": {"adultos": 2, "ninos": 1},
+    "maletas_bodega": 3,
+    "maletas_nota": "2 grandes (adultos) + 1 mediana (niño). Si la del niño va en cabina, cambiar a 2.",
+    "ida_canonica": "2027-07-12",
+    "vuelta_canonica": "2027-07-31",
+    "holgura_dias": 2,
+    "destinos": {"OPO": "Oporto", "LIS": "Lisboa"},
+    "destino_preferido": "OPO"
+  },
+  "serpapi": {
+    "moneda": "CLP",
+    "gl": "cl",
+    "hl": "es",
+    "deep_search": true,
+    "rotacion_diaria": 4,
+    "reserva_creditos": 12,
+    "maletas_dia_semana": 6,
+    "timeout_s": 120
+  },
+  "corredores": [
+    {"id": "madrid", "nombre": "Vía Madrid", "aeropuertos": ["MAD"]},
+    {"id": "brasil", "nombre": "Vía Brasil", "aeropuertos": ["GRU", "GIG", "BSB", "FOR", "REC", "SSA", "CNF", "VCP", "POA", "FLN", "NAT", "BEL"]},
+    {"id": "lima", "nombre": "Vía Lima", "aeropuertos": ["LIM"]},
+    {"id": "paris", "nombre": "Vía París", "aeropuertos": ["CDG", "ORY"]}
+  ],
+  "aeropuertos_chile": ["CCP", "SCL", "PMC", "ZAL", "ZCO", "LSC", "ANF", "IQQ", "ARI", "CJC", "PUQ", "ZOS", "ZPC", "BBA", "LSQ", "CPO", "ESR", "WCH", "TLX"]
+}

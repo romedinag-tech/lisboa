@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pasajes a Portugal · julio 2027</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFBFD;--surface:#FFFFFF;--surface-alt:#F4F6F9;--line:#E3E8EF;--line-2:#D6DEE9;
+  --ink:#0E2338;--ink-mid:#4A5A70;--ink-lo:#7C8AA0;--mut:var(--ink-mid);
+  --navy:#16365a;--navy2:#21507F;--accent:#1F6FEB;--focus:#1F6FEB;
+  --grad:linear-gradient(135deg,#0E2338 0%,#16365a 60%,#21507F 100%);
+  --or:#C55A11;--green:#1d7a45;--red:#B2182B;
+  --r:14px;--r-sm:10px;
+  --sh:0 1px 3px rgba(14,35,56,.05),0 8px 24px rgba(14,35,56,.05);
+  --font-display:'Source Serif 4',Georgia,serif;
+  --font-ui:'Inter',-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-data:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+  --seq-1:#EFF3FB;--seq-2:#C6D9F0;--seq-3:#8CB3DE;--seq-4:#4A80C0;--seq-5:#16365A;
+  --grid:#e8ecf2;--band:rgba(31,111,235,.10);
+  /* corredores: paleta categórica validada (orden fijo) */
+  --c-madrid:#2a78d6;--c-brasil:#1baf7a;--c-lima:#eda100;--c-paris:#e87ba4;--c-otra:#4a3aa7;--c-todos:#0E2338;
+}
+:root[data-theme="dark"]{
+  --paper:#0a0d13;--surface:#151c27;--surface-alt:#1a212c;--line:#232c3a;--line-2:#2b3547;
+  --ink:#e9eef5;--ink-mid:#8a93a5;--ink-lo:#6b7382;--mut:#8a93a5;
+  --navy:#ff6a1a;--navy2:#ff9d2f;--accent:#ff6a1a;--focus:#ff9d2f;--or:#ff9d2f;--green:#3fbf73;--red:#ff6b6b;
+  --grad:linear-gradient(135deg,#12161f 0%,#0d1119 60%,#161d28 100%);
+  --sh:0 8px 22px rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.5);
+  --card-grad:linear-gradient(180deg,#1a212c 0%,#11161f 100%);
+  --card-3d:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -18px 30px rgba(0,0,0,.28),0 18px 34px -12px rgba(0,0,0,.70);
+  --led:0 0 6px rgba(255,150,40,.85),0 0 16px rgba(255,106,26,.55);
+  --seq-1:#1b2636;--seq-2:#23466e;--seq-3:#2f67a3;--seq-4:#5598e7;--seq-5:#9ec5f4;
+  --grid:#232c3a;--band:rgba(85,152,231,.16);
+  --c-madrid:#3987e5;--c-brasil:#199e70;--c-lima:#c98500;--c-paris:#d55181;--c-otra:#9085e9;--c-todos:#e9eef5;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font-ui);background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5;margin:0;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.num{font-family:var(--font-data);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;margin:0}
+h3{font-size:1.12rem;font-weight:600;line-height:1.25}
+.apptop{display:flex;align-items:center;gap:16px;padding:14px 24px;background:var(--grad);color:#fff;flex-wrap:wrap}
+.apptop .title{font-family:var(--font-display);font-weight:700;font-size:1.25rem;line-height:1.2}
+.apptop .sub{font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;opacity:.85;font-weight:600}
+.apptop .right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:.72rem;font-weight:600;letter-spacing:.3px}
+.live .led{width:8px;height:8px;border-radius:50%;background:var(--or);box-shadow:var(--led,none)}
+.hdr-btn{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;width:36px;height:36px;
+  border-radius:9px;cursor:pointer;font-size:1rem}
+main{max-width:1240px;margin:0 auto;padding:20px 24px 48px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 18px}
+.ctrl .lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-lo);font-weight:600;margin-right:4px}
+.ctrl button{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);padding:8px 15px;border-radius:22px;
+  cursor:pointer;font-weight:600;font-size:.88rem;font-family:var(--font-ui);min-height:38px}
+.ctrl button:hover{border-color:var(--accent)}
+.ctrl button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh);min-width:0}
+:root[data-theme="dark"] .card{background-image:var(--card-grad);box-shadow:var(--card-3d)}
+.card>p.exp{color:var(--mut);font-size:.88rem;margin:.25rem 0 .9rem;max-width:78ch}
+.src{color:var(--ink-lo);font-size:.75rem;margin-top:10px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.kpi .label{font-size:.8rem;color:var(--mut);font-weight:500}
+.kpi .v{font-family:var(--font-data);font-size:1.6rem;font-weight:700;color:var(--navy);line-height:1.15;margin:.25rem 0}
+.kpi .s{font-size:.82rem;color:var(--ink-mid)}
+.kpi .s b{color:var(--or)}
+.veredicto{display:flex;gap:14px;align-items:flex-start;border-left:4px solid var(--accent);margin-bottom:14px}
+.veredicto .ico{font-size:1.4rem;line-height:1}
+.veredicto h3{margin-bottom:2px}
+.veredicto p{margin:0;color:var(--ink-mid);max-width:95ch}
+.grid2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.g-heat{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--ink-mid);margin:2px 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line-2);border-radius:8px;
+  padding:8px 10px;font-size:.8rem;box-shadow:var(--sh);white-space:nowrap;z-index:5;display:none}
+.tip .t{font-weight:600;margin-bottom:3px}
+.tip .row{display:flex;justify-content:space-between;gap:14px}
+.tip .row i{width:10px;height:3px;display:inline-block;margin-right:6px;vertical-align:middle;border-radius:2px}
+.empty{padding:28px 10px;text-align:center;color:var(--ink-lo);font-size:.9rem}
+.heat{display:grid;gap:3px}
+.heat .h{font-size:.72rem;color:var(--ink-lo);text-align:center;align-self:end;padding-bottom:2px}
+.heat .hl{font-size:.72rem;color:var(--ink-lo);text-align:right;padding-right:6px;align-self:center}
+.cell{border-radius:6px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:var(--font-data);font-size:.8rem;font-weight:600;cursor:default;border:2px solid transparent}
+.cell small{font-family:var(--font-ui);font-weight:500;font-size:.66rem;opacity:.8}
+.cell.best{border-color:var(--or)}
+.cell.canon{outline:1px dashed var(--ink-lo);outline-offset:1px}
+.cell.na{background:var(--surface-alt);color:var(--ink-lo);font-weight:400}
+.tblwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+th{text-align:left;font-weight:600;color:var(--ink-mid);font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;
+  border-bottom:1px solid var(--line-2);padding:8px 10px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top}
+td.r,th.r{text-align:right}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.72rem;font-weight:600;background:var(--surface-alt);color:var(--ink-mid)}
+.method-drawer{margin-top:14px}
+.method-drawer>summary{cursor:pointer;list-style:none;font-family:var(--font-display);font-weight:600;font-size:1.02rem;
+  padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;display:flex;gap:10px}
+.method-drawer>summary::-webkit-details-marker{display:none}
+.method-drawer>summary::before{content:"▸";color:var(--accent);transition:transform .15s}
+.method-drawer[open]>summary::before{transform:rotate(90deg)}
+.method-drawer .body{padding:6px 18px 4px;max-width:80ch;color:var(--ink-mid)}
+.method-drawer li{margin-bottom:6px}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}}
+@media (max-width:520px){.kpis{grid-template-columns:1fr}main{padding:14px}.apptop{padding:12px 14px}}
+</style>
+</head>
+<body>
+<header class="apptop">
+  <div>
+    <div class="title">Pasajes a Portugal · julio 2027</div>
+    <div class="sub" id="sub"></div>
+  </div>
+  <div class="right">
+    <span class="live"><span class="led"></span><span id="gen"></span></span>
+    <button id="themeBtn" class="hdr-btn" title="Tema claro / oscuro" aria-label="Cambiar tema">☾</button>
+  </div>
+</header>
+<main>
+  <div class="ctrl" role="group" aria-label="Itinerario">
+    <span class="lbl">Itinerario</span><span id="selItin" style="display:contents"></span>
+  </div>
+
+  <section class="card veredicto" id="veredicto" aria-live="polite"></section>
+  <section class="kpis" id="kpis"></section>
+
+  <div class="grid2">
+    <section class="card">
+      <h3>Precio más bajo por ruta, día a día</h3>
+      <p class="exp">Cada punto es el total más barato que publicó Google Flights ese día para los tres pasajeros, en las fechas base, separado por dónde se hace la escala. Lo que interesa es la tendencia: una promoción real se ve como una caída que se sale de la banda de los días anteriores.</p>
+      <div class="legend" id="legSerie"></div>
+      <div class="chart" id="chSerie"></div>
+      <div class="src">Fuente: Google Flights vía SerpApi, registro propio. Pesos chilenos, total del grupo, pasaje sin maletas adicionales.</div>
+    </section>
+    <section class="card">
+      <h3>Historial y rango típico según Google</h3>
+      <p class="exp">Serie que Google guarda para esta búsqueda y la banda que considera «típica». Sirve de contraste externo antes de tener semanas de registro propio.</p>
+      <div class="chart" id="chGoogle"></div>
+      <div class="src">Fuente: Google Flights, <span class="num">price_insights</span>, última descarga.</div>
+    </section>
+  </div>
+
+  <div class="grid2 g-heat">
+    <section class="card">
+      <h3>Qué fechas conviene mover</h3>
+      <p class="exp">Última observación de cada combinación de ida y vuelta con ±<span id="hol"></span> días. Más oscuro es más caro; el borde naranja marca la más barata y la línea punteada, las fechas base. La grilla completa se recorre por turnos, así que cada celda indica hace cuántos días se midió.</p>
+      <div id="heat"></div>
+      <div class="src">Fuente: Google Flights vía SerpApi. Ida y vuelta al mismo aeropuerto.</div>
+    </section>
+    <section class="card">
+      <h3>Tarifas y equipaje</h3>
+      <p class="exp">Una vez por semana se abre la opción más barata de las tres rutas más económicas y se leen la tarifa y el cobro por maleta. Aquí se ve cuánto sube el total con las <span id="nmal"></span> maletas en bodega.</p>
+      <div class="tblwrap" id="maletas"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h3>Opciones del último registro</h3>
+    <p class="exp">Las 15 alternativas más baratas de la última consulta del itinerario elegido, con escalas y aerolíneas.</p>
+    <div class="tblwrap" id="tabla"></div>
+  </section>
+
+  <details class="method-drawer">
+    <summary>Cómo se mide y qué hay que tener en cuenta</summary>
+    <div class="body" id="metodo"></div>
+  </details>
+</main>
+<div class="tip" id="tip"></div>
+
+<script>
+const D = {"generado":"2026-09-14 14:37 UTC","viaje":{"origen":"CCP","pasajeros":{"adultos":2,"ninos":1},"maletas_bodega":3,"ida":"2027-07-12","vuelta":"2027-07-31","holgura":2,"destinos":{"OPO":"Oporto","LIS":"Lisboa"},"preferido":"OPO","moneda":"CLP"},"corredores":[{"id":"madrid","nombre":"Vía Madrid"},{"id":"brasil","nombre":"Vía Brasil"},{"id":"lima","nombre":"Vía Lima"},{"id":"paris","nombre":"Vía París"},{"id":"otra","nombre":"Otra ruta"}],"claves":{"RT-CCP-OPO-20270712-20270731":{"clave":"RT-CCP-OPO-20270712-20270731","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-12","vuelta":"2027-07-31"},"RT-CCP-LIS-20270712-20270731":{"clave":"RT-CCP-LIS-20270712-20270731","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-12","vuelta":"2027-07-31"},"OJ-CCP-OPO-LIS-20270712-20270731":{"clave":"OJ-CCP-OPO-LIS-20270712-20270731","tipo":"OJ","origen":"CCP","destino":"OPO","vuelta_desde":"LIS","ida":"2027-07-12","vuelta":"2027-07-31"},"OJ-CCP-LIS-OPO-20270712-20270731":{"clave":"OJ-CCP-LIS-OPO-20270712-20270731","tipo":"OJ","origen":"CCP","destino":"LIS","vuelta_desde":"OPO","ida":"2027-07-12","vuelta":"2027-07-31"},"RT-CCP-OPO-20270710-20270729":{"clave":"RT-CCP-OPO-20270710-20270729","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-10","vuelta":"2027-07-29"},"RT-CCP-LIS-20270710-20270729":{"clave":"RT-CCP-LIS-20270710-20270729","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-10","vuelta":"2027-07-29"},"RT-CCP-OPO-20270710-20270730":{"clave":"RT-CCP-OPO-20270710-20270730","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-10","vuelta":"2027-07-30"},"RT-CCP-LIS-20270710-20270730":{"clave":"RT-CCP-LIS-20270710-20270730","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-10","vuelta":"2027-07-30"},"RT-CCP-OPO-20270710-20270731":{"clave":"RT-CCP-OPO-20270710-20270731","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-10","vuelta":"2027-07-31"},"RT-CCP-LIS-20270710-20270731":{"clave":"RT-CCP-LIS-20270710-20270731","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-10","vuelta":"2027-07-31"},"RT-CCP-OPO-20270710-20270801":{"clave":"RT-CCP-OPO-20270710-20270801","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-10","vuelta":"2027-08-01"},"RT-CCP-LIS-20270710-20270801":{"clave":"RT-CCP-LIS-20270710-20270801","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-10","vuelta":"2027-08-01"},"RT-CCP-OPO-20270710-20270802":{"clave":"RT-CCP-OPO-20270710-20270802","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-10","vuelta":"2027-08-02"},"RT-CCP-LIS-20270710-20270802":{"clave":"RT-CCP-LIS-20270710-20270802","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-10","vuelta":"2027-08-02"},"RT-CCP-OPO-20270711-20270729":{"clave":"RT-CCP-OPO-20270711-20270729","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-11","vuelta":"2027-07-29"},"RT-CCP-LIS-20270711-20270729":{"clave":"RT-CCP-LIS-20270711-20270729","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-11","vuelta":"2027-07-29"},"RT-CCP-OPO-20270711-20270730":{"clave":"RT-CCP-OPO-20270711-20270730","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-11","vuelta":"2027-07-30"},"RT-CCP-LIS-20270711-20270730":{"clave":"RT-CCP-LIS-20270711-20270730","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-11","vuelta":"2027-07-30"},"RT-CCP-OPO-20270711-20270731":{"clave":"RT-CCP-OPO-20270711-20270731","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-11","vuelta":"2027-07-31"},"RT-CCP-LIS-20270711-20270731":{"clave":"RT-CCP-LIS-20270711-20270731","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-11","vuelta":"2027-07-31"},"RT-CCP-OPO-20270711-20270801":{"clave":"RT-CCP-OPO-20270711-20270801","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-11","vuelta":"2027-08-01"},"RT-CCP-LIS-20270711-20270801":{"clave":"RT-CCP-LIS-20270711-20270801","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-11","vuelta":"2027-08-01"},"RT-CCP-OPO-20270711-20270802":{"clave":"RT-CCP-OPO-20270711-20270802","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-11","vuelta":"2027-08-02"},"RT-CCP-LIS-20270711-20270802":{"clave":"RT-CCP-LIS-20270711-20270802","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-11","vuelta":"2027-08-02"},"RT-CCP-OPO-20270712-20270729":{"clave":"RT-CCP-OPO-20270712-20270729","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-12","vuelta":"2027-07-29"},"RT-CCP-LIS-20270712-20270729":{"clave":"RT-CCP-LIS-20270712-20270729","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-12","vuelta":"2027-07-29"},"RT-CCP-OPO-20270712-20270730":{"clave":"RT-CCP-OPO-20270712-20270730","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-12","vuelta":"2027-07-30"},"RT-CCP-LIS-20270712-20270730":{"clave":"RT-CCP-LIS-20270712-20270730","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-12","vuelta":"2027-07-30"},"RT-CCP-OPO-20270712-20270801":{"clave":"RT-CCP-OPO-20270712-20270801","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-12","vuelta":"2027-08-01"},"RT-CCP-LIS-20270712-20270801":{"clave":"RT-CCP-LIS-20270712-20270801","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-12","vuelta":"2027-08-01"},"RT-CCP-OPO-20270712-20270802":{"clave":"RT-CCP-OPO-20270712-20270802","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-12","vuelta":"2027-08-02"},"RT-CCP-LIS-20270712-20270802":{"clave":"RT-CCP-LIS-20270712-20270802","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-12","vuelta":"2027-08-02"},"RT-CCP-OPO-20270713-20270729":{"clave":"RT-CCP-OPO-20270713-20270729","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-13","vuelta":"2027-07-29"},"RT-CCP-LIS-20270713-20270729":{"clave":"RT-CCP-LIS-20270713-20270729","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-13","vuelta":"2027-07-29"},"RT-CCP-OPO-20270713-20270730":{"clave":"RT-CCP-OPO-20270713-20270730","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-13","vuelta":"2027-07-30"},"RT-CCP-LIS-20270713-20270730":{"clave":"RT-CCP-LIS-20270713-20270730","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-13","vuelta":"2027-07-30"},"RT-CCP-OPO-20270713-20270731":{"clave":"RT-CCP-OPO-20270713-20270731","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-13","vuelta":"2027-07-31"},"RT-CCP-LIS-20270713-20270731":{"clave":"RT-CCP-LIS-20270713-20270731","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-13","vuelta":"2027-07-31"},"RT-CCP-OPO-20270713-20270801":{"clave":"RT-CCP-OPO-20270713-20270801","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-13","vuelta":"2027-08-01"},"RT-CCP-LIS-20270713-20270801":{"clave":"RT-CCP-LIS-20270713-20270801","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-13","vuelta":"2027-08-01"},"RT-CCP-OPO-20270713-20270802":{"clave":"RT-CCP-OPO-20270713-20270802","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-13","vuelta":"2027-08-02"},"RT-CCP-LIS-20270713-20270802":{"clave":"RT-CCP-LIS-20270713-20270802","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-13","vuelta":"2027-08-02"},"RT-CCP-OPO-20270714-20270729":{"clave":"RT-CCP-OPO-20270714-20270729","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-14","vuelta":"2027-07-29"},"RT-CCP-LIS-20270714-20270729":{"clave":"RT-CCP-LIS-20270714-20270729","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-14","vuelta":"2027-07-29"},"RT-CCP-OPO-20270714-20270730":{"clave":"RT-CCP-OPO-20270714-20270730","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-14","vuelta":"2027-07-30"},"RT-CCP-LIS-20270714-20270730":{"clave":"RT-CCP-LIS-20270714-20270730","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-14","vuelta":"2027-07-30"},"RT-CCP-OPO-20270714-20270731":{"clave":"RT-CCP-OPO-20270714-20270731","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-14","vuelta":"2027-07-31"},"RT-CCP-LIS-20270714-20270731":{"clave":"RT-CCP-LIS-20270714-20270731","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-14","vuelta":"2027-07-31"},"RT-CCP-OPO-20270714-20270801":{"clave":"RT-CCP-OPO-20270714-20270801","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-14","vuelta":"2027-08-01"},"RT-CCP-LIS-20270714-20270801":{"clave":"RT-CCP-LIS-20270714-20270801","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-14","vuelta":"2027-08-01"},"RT-CCP-OPO-20270714-20270802":{"clave":"RT-CCP-OPO-20270714-20270802","tipo":"RT","origen":"CCP","destino":"OPO","vuelta_desde":"OPO","ida":"2027-07-14","vuelta":"2027-08-02"},"RT-CCP-LIS-20270714-20270802":{"clave":"RT-CCP-LIS-20270714-20270802","tipo":"RT","origen":"CCP","destino":"LIS","vuelta_desde":"LIS","ida":"2027-07-14","vuelta":"2027-08-02"}},"fijas":["RT-CCP-OPO-20270712-20270731","RT-CCP-LIS-20270712-20270731"],"serie":{},"grilla":[],"ultimas":{},"insights":{},"historial":{},"maletas":[],"registro":{"consultas_ok":0,"dias":0,"primera":null,"ultima":null,"creditos":null,"errores":0}};
+const $ = s => document.querySelector(s);
+const fmt = n => n == null ? '—' : '$ ' + Math.round(n).toLocaleString('es-CL');
+const fmtM = n => n == null ? '—' : (n/1e6).toLocaleString('es-CL',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' M';
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fdate = s => { const [y,m,d] = s.split('-'); return `${+d} ${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][m-1]}`; };
+const diasEntre = (a,b) => Math.round((new Date(b) - new Date(a))/864e5);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const NOMBRE_NIVEL = {low:'bajo', typical:'típico', high:'alto'};
+
+try{ if(localStorage.getItem('theme')==='dark') document.documentElement.setAttribute('data-theme','dark'); }catch(e){}
+function setTheme(dark){
+  document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+  try{ localStorage.setItem('theme', dark?'dark':'light'); }catch(e){}
+  $('#themeBtn').textContent = dark ? '☀' : '☾';
+  render();
+}
+$('#themeBtn').onclick = () => setTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
+$('#themeBtn').textContent = document.documentElement.getAttribute('data-theme')==='dark' ? '☀' : '☾';
+
+let sel = null;
+const tip = $('#tip');
+function showTip(html, ev){
+  tip.innerHTML = html; tip.style.display = 'block';
+  const w = tip.offsetWidth, x = ev.pageX + 14 + w > window.scrollX + innerWidth ? ev.pageX - w - 14 : ev.pageX + 14;
+  tip.style.left = x + 'px'; tip.style.top = (ev.pageY + 12) + 'px';
+}
+const hideTip = () => tip.style.display = 'none';
+
+function nombreItin(c){
+  const q = D.claves[c], n = D.viaje.destinos;
+  return q.tipo === 'RT' ? n[q.destino] : `Llegar a ${n[q.destino]}, volver de ${n[q.vuelta_desde]}`;
+}
+
+function itinerarios(){
+  const base = [...D.fijas];
+  Object.values(D.claves).forEach(q => {
+    if(q.tipo==='OJ' && q.ida===D.viaje.ida && q.vuelta===D.viaje.vuelta) base.push(q.clave);
+  });
+  return base;
+}
+
+function serieDe(clave){ return D.serie[clave] || {}; }
+
+/* ---------- gráfico de líneas SVG ---------- */
+function lineChart(el, series, opt={}){
+  const W = 640, H = 280, m = {l:58, r:86, t:14, b:30};
+  const all = series.flatMap(s => s.pts);
+  if(!all.length){ el.innerHTML = `<div class="empty">${opt.vacio || 'Sin registros todavía.'}</div>`; return; }
+  const xs = [...new Set(all.map(p => p[0]))].sort();
+  const tx = s => new Date(s).getTime();
+  let x0 = tx(xs[0]), x1 = tx(xs[xs.length-1]); if(x0===x1){ x0 -= 864e5; x1 += 864e5; }
+  let vals = all.map(p => p[1]);
+  if(opt.band) vals.push(opt.band[0], opt.band[1]);
+  let y0 = Math.min(...vals), y1 = Math.max(...vals); const pad = (y1-y0)*.12 || y1*.05; y0 -= pad; y1 += pad;
+  const X = s => m.l + (tx(s)-x0)/(x1-x0)*(W-m.l-m.r), Y = v => m.t + (1-(v-y0)/(y1-y0))*(H-m.t-m.b);
+  const grid = css('--grid'), ink = css('--ink-lo'), surf = css('--surface');
+  let g = '';
+  for(let i=0;i<=4;i++){ const v = y0 + (y1-y0)*i/4, y = Y(v);
+    g += `<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}" stroke="${grid}"/>`+
+         `<text x="${m.l-8}" y="${y+4}" text-anchor="end" font-size="11" fill="${ink}" font-family="IBM Plex Mono,monospace">${fmtM(v)}</text>`; }
+  const nt = Math.min(6, xs.length);
+  for(let i=0;i<nt;i++){ const s = xs[Math.round(i*(xs.length-1)/Math.max(nt-1,1))];
+    g += `<text x="${X(s)}" y="${H-8}" text-anchor="middle" font-size="11" fill="${ink}">${fdate(s)}</text>`; }
+  if(opt.band){ const [a,b] = opt.band;
+    g += `<rect x="${m.l}" y="${Y(b)}" width="${W-m.l-m.r}" height="${Math.max(Y(a)-Y(b),1)}" fill="${css('--band')}"/>`+
+         `<text x="${W-m.r+6}" y="${(Y(a)+Y(b))/2+4}" font-size="11" fill="${ink}">rango típico</text>`; }
+  const labels = [];
+  series.forEach(s => {
+    if(!s.pts.length) return;
+    const col = css(s.color), pts = s.pts.map(p => `${X(p[0])},${Y(p[1])}`).join(' ');
+    g += `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    if(s.pts.length < 40) s.pts.forEach(p => g += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3.2" fill="${col}" stroke="${surf}" stroke-width="1.5"/>`);
+    const last = s.pts[s.pts.length-1]; labels.push({y:Y(last[1]), x:X(last[0]), t:s.name, c:col});
+  });
+  labels.sort((a,b)=>a.y-b.y); for(let i=1;i<labels.length;i++) if(labels[i].y - labels[i-1].y < 13) labels[i].y = labels[i-1].y + 13;
+  if(!opt.band && series.length > 1) labels.forEach(l => g += `<text x="${l.x+8}" y="${l.y+4}" font-size="11" font-weight="600" fill="${css('--ink-mid')}">${esc(l.t)}</text>`);
+  g += `<line id="xh" x1="0" x2="0" y1="${m.t}" y2="${H-m.b}" stroke="${css('--ink-lo')}" stroke-dasharray="3 3" visibility="hidden"/>`;
+  g += `<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="transparent" class="hit"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opt.aria||'gráfico')}">${g}</svg>`;
+  const svg = el.querySelector('svg'), xh = svg.querySelector('#xh');
+  svg.querySelector('.hit').addEventListener('mousemove', ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width;
+    let best = xs[0]; xs.forEach(s => { if(Math.abs(X(s)-px) < Math.abs(X(best)-px)) best = s; });
+    xh.setAttribute('x1', X(best)); xh.setAttribute('x2', X(best)); xh.setAttribute('visibility','visible');
+    const rows = series.map(s => [s, (s.pts.find(p => p[0]===best)||[])[1]]).filter(r => r[1]!=null).sort((a,b)=>a[1]-b[1])
+      .map(([s,v]) => `<div class="row"><span><i style="background:${css(s.color)}"></i>${esc(s.name)}</span><span class="num">${fmt(v)}</span></div>`).join('');
+    showTip(`<div class="t">${fdate(best)}</div>${rows}`, ev);
+  });
+  svg.querySelector('.hit').addEventListener('mouseleave', () => { xh.setAttribute('visibility','hidden'); hideTip(); });
+}
+
+/* ---------- vistas ---------- */
+function renderVeredicto(clave){
+  const s = serieDe(clave), fechas = Object.keys(s).sort(), el = $('#veredicto');
+  const ins = D.insights[clave];
+  if(!fechas.length){ el.innerHTML = `<div class="ico">⏳</div><div><h3>Aún sin registros para este itinerario</h3><p>${D.claves[clave].tipo==='OJ' ? 'Los itinerarios que llegan a una ciudad y vuelven desde la otra se consultan por turnos, aproximadamente cada dos semanas.' : 'La primera consulta aparecerá después de la próxima corrida diaria.'}</p></div>`; return; }
+  const hoy = fechas[fechas.length-1], v = s[hoy].todos;
+  const prev = fechas.slice(0,-1).filter(f => diasEntre(f,hoy) <= 30).map(f => s[f].todos).sort((a,b)=>a-b);
+  const med = prev.length ? prev[Math.floor(prev.length/2)] : null;
+  const dif = med ? (v-med)/med : null;
+  let ico='⚖️', tit='Sin señal todavía', txt='';
+  const partes = [];
+  if(med!=null) partes.push(`El mínimo de hoy (${fmt(v)}) está ${Math.abs(dif*100).toFixed(1).replace('.',',')} % ${dif<0?'bajo':'sobre'} la mediana de los últimos 30 días registrados (${fmt(med)}, ${prev.length} días)`);
+  else partes.push(`Hay un solo día registrado (${fmt(v)}); la comparación contra el registro propio empieza desde la segunda medición`);
+  if(ins && ins.tipico_min) partes.push(`Google clasifica el precio como <b>${NOMBRE_NIVEL[ins.nivel]||ins.nivel||'sin nivel'}</b>, con rango típico entre ${fmt(+ins.tipico_min)} y ${fmt(+ins.tipico_max)}`);
+  const bajoGoogle = ins && ins.tipico_min && v < +ins.tipico_min, bajoPropio = dif != null && dif <= -0.08 && prev.length >= 7;
+  if(bajoGoogle && bajoPropio){ ico='🟢'; tit='Parece una oferta real'; }
+  else if(bajoGoogle || bajoPropio){ ico='🟡'; tit='Precio bajo, falta una de las dos confirmaciones'; }
+  else if(dif != null && dif > 0.05){ ico='🔴'; tit='Más caro que lo habitual'; }
+  else if(prev.length >= 7){ ico='⚪'; tit='Precio dentro de lo normal'; }
+  txt = partes.join('; ') + '.';
+  el.innerHTML = `<div class="ico" aria-hidden="true">${ico}</div><div><h3>${tit} · ${esc(nombreItin(clave))}</h3><p>${txt} Una oferta se considera real cuando cae bajo el rango típico de Google <i>y</i> al menos 8 % bajo la mediana propia con una semana o más de registro.</p></div>`;
+}
+
+function renderKpis(clave){
+  const s = serieDe(clave), fechas = Object.keys(s).sort(), ins = D.insights[clave];
+  const hoy = fechas[fechas.length-1];
+  let minH = null, minF = null; fechas.forEach(f => { if(minH==null || s[f].todos < minH){ minH = s[f].todos; minF = f; } });
+  const corr = hoy ? Object.entries(s[hoy]).filter(([k])=>k!=='todos').sort((a,b)=>a[1]-b[1])[0] : null;
+  const nombreC = id => (D.corredores.find(c=>c.id===id)||{}).nombre || id;
+  const k = [
+    ['Mejor total hoy', hoy ? fmt(s[hoy].todos) : '—', hoy ? `${fdate(hoy)} · ${nombreC(corr[0])} · 3 pasajeros` : 'sin datos'],
+    ['Mínimo registrado', fmt(minH), minF ? `el ${fdate(minF)} · ${fechas.length} días medidos` : '—'],
+    ['Nivel según Google', ins && ins.nivel ? (NOMBRE_NIVEL[ins.nivel]||ins.nivel) : '—', ins && ins.tipico_min ? `típico ${fmtM(+ins.tipico_min)} – ${fmtM(+ins.tipico_max)}` : 'Google no publicó rango'],
+    ['Créditos SerpApi', D.registro.creditos ?? '—', `${D.registro.consultas_ok} consultas en ${D.registro.dias} días${D.registro.errores?` · <b>${D.registro.errores} con error</b>`:''}`],
+  ];
+  $('#kpis').innerHTML = k.map(([l,v,s]) => `<div class="card kpi"><div class="label">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+}
+
+function renderSerie(clave){
+  const s = serieDe(clave), fechas = Object.keys(s).sort();
+  const series = D.corredores.map(c => ({id:c.id, name:c.nombre, color:`--c-${c.id}`,
+    pts: fechas.filter(f => s[f][c.id]!=null).map(f => [f, s[f][c.id]])})).filter(x => x.pts.length);
+  $('#legSerie').innerHTML = series.map(x => `<span><i style="background:${css(x.color)}"></i>${x.name}</span>`).join('');
+  lineChart($('#chSerie'), series, {aria:'Precio mínimo por ruta en el tiempo', vacio:'Sin registros para este itinerario todavía.'});
+}
+
+function renderGoogle(clave){
+  const h = D.historial[clave] || [], ins = D.insights[clave];
+  const band = ins && ins.tipico_min ? [+ins.tipico_min, +ins.tipico_max] : null;
+  lineChart($('#chGoogle'), [{id:'g', name:'Google', color:'--c-todos', pts:h.filter(p=>p[1]!=null)}],
+    {band, aria:'Historial de precios de Google', vacio:'Google no ha publicado historial para esta búsqueda.'});
+}
+
+function renderHeat(clave){
+  const q = D.claves[clave], el = $('#heat');
+  if(q.tipo !== 'RT'){ el.innerHTML = '<div class="empty">La grilla de fechas se mide para ida y vuelta a la misma ciudad. Elige Oporto o Lisboa.</div>'; return; }
+  const h = D.viaje.holgura, add = (s,n) => { const d = new Date(s+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
+  const idas = [], vueltas = []; for(let i=-h;i<=h;i++){ idas.push(add(D.viaje.ida,i)); vueltas.push(add(D.viaje.vuelta,i)); }
+  const cel = {}; D.grilla.filter(g => g.destino===q.destino).forEach(g => cel[g.ida+'|'+g.vuelta] = g);
+  const ps = Object.values(cel).map(g=>g.precio); const lo = Math.min(...ps), hi = Math.max(...ps);
+  const ramp = ['--seq-1','--seq-2','--seq-3','--seq-4','--seq-5'].map(css);
+  const ultima = D.registro.ultima;
+  let html = `<div class="heat" style="grid-template-columns:auto repeat(${vueltas.length},minmax(0,1fr))"><div class="h">ida ↓ · vuelta →</div>`;
+  vueltas.forEach(v => html += `<div class="h">${fdate(v)}</div>`);
+  idas.forEach(i => {
+    html += `<div class="hl">${fdate(i)}</div>`;
+    vueltas.forEach(v => {
+      const g = cel[i+'|'+v], canon = i===D.viaje.ida && v===D.viaje.vuelta;
+      if(!g){ html += `<div class="cell na ${canon?'canon':''}">sin medir</div>`; return; }
+      const t = hi===lo ? 2 : Math.min(4, Math.floor((g.precio-lo)/(hi-lo)*5));
+      const fg = t >= 3 ? '#fff' : css('--ink');
+      const edad = ultima ? diasEntre(g.fecha, ultima) : 0;
+      html += `<div class="cell ${g.precio===lo?'best':''} ${canon?'canon':''}" style="background:${ramp[t]};color:${fg}" data-i="${i}" data-v="${v}">${fmtM(g.precio)}<small>${edad?`hace ${edad} d`:'hoy'}</small></div>`;
+    });
+  });
+  el.innerHTML = html + '</div>';
+  el.querySelectorAll('.cell[data-i]').forEach(c => {
+    const g = cel[c.dataset.i+'|'+c.dataset.v];
+    c.addEventListener('mousemove', ev => showTip(`<div class="t">Ida ${fdate(g.ida)} · vuelta ${fdate(g.vuelta)}</div><div class="row"><span>Total</span><span class="num">${fmt(g.precio)}</span></div><div class="row"><span>Ruta</span><span>${esc((D.corredores.find(x=>x.id===g.corredor)||{}).nombre||g.corredor)}</span></div><div class="row"><span>Medido</span><span>${fdate(g.fecha)}</span></div><div class="row"><span>${diasEntre(g.ida,g.vuelta)} días de viaje</span><span></span></div>`, ev));
+    c.addEventListener('mouseleave', hideTip);
+  });
+}
+
+function renderTabla(clave){
+  const rows = D.ultimas[clave] || [];
+  if(!rows.length){ $('#tabla').innerHTML = '<div class="empty">Sin opciones registradas.</div>'; return; }
+  const hm = m => m ? `${Math.floor(m/60)} h ${String(m%60).padStart(2,'0')}` : '—';
+  $('#tabla').innerHTML = `<table><thead><tr><th>Ruta</th><th>Escalas</th><th>Aerolíneas</th><th>Sale → llega (ida)</th><th class="r">Duración ida</th><th class="r">Total 3 pax</th></tr></thead><tbody>` +
+    rows.map(r => `<tr><td><span class="dot" style="background:${css('--c-'+r.corredor)}"></span>${esc((D.corredores.find(c=>c.id===r.corredor)||{}).nombre)}</td>
+      <td class="num">${esc(r.via||'directo')}</td><td>${esc(r.aerolineas)}</td>
+      <td class="num">${esc(r.salida)} → ${esc((r.llegada||'').slice(5))}</td><td class="r num">${hm(+r.duracion_min)}</td>
+      <td class="r num"><b>${fmt(+r.precio)}</b></td></tr>`).join('') + `</tbody></table><div class="src">Registro del ${rows[0] ? fdate(rows[0].fecha) : ''}. La duración y las escalas son del tramo de ida; la vuelta se elige al comprar.</div>`;
+}
+
+function renderMaletas(){
+  const m = D.maletas || [];
+  $('#nmal').textContent = D.viaje.maletas_bodega;
+  if(!m.length){ $('#maletas').innerHTML = '<div class="empty">Todavía no corre la lectura semanal de tarifas.</div>'; return; }
+  $('#maletas').innerHTML = `<table><thead><tr><th>Ruta y tarifa</th><th>Equipaje</th><th class="r">Precio</th></tr></thead><tbody>` +
+    m.map(r => `<tr><td><span class="dot" style="background:${css('--c-'+r.corredor)}"></span>${esc((D.corredores.find(c=>c.id===r.corredor)||{}).nombre||r.corredor)}
+      <br><span class="tag">${esc(r.tarifa||'tarifa sin nombre')}</span> <small>${esc(r.vendedor)}</small>${r.nota?`<br><small>${esc(r.nota)}</small>`:''}</td>
+      <td>${esc(r.equipaje||'no informado').replaceAll(' | ','<br>')}</td><td class="r num">${r.precio_opcion?fmt(+r.precio_opcion):'—'}</td></tr>`).join('') +
+    `</tbody></table><div class="src">Lectura del ${fdate(m[0].fecha)}. El texto de equipaje es el que publica Google; se verifica en el sitio de la aerolínea antes de comprar.</div>`;
+}
+
+function renderMetodo(){
+  const v = D.viaje;
+  $('#metodo').innerHTML = `<ul>
+  <li><b>Qué se busca.</b> ${v.pasajeros.adultos} adultos y ${v.pasajeros.ninos} niño, desde Concepción (${v.origen}), ida el ${fdate(v.ida)} y vuelta el ${fdate(v.vuelta)} de 2027, a Oporto, a Lisboa y combinando ambas. Precio total del grupo en pesos chilenos, punto de venta Chile.</li>
+  <li><b>Todos los días</b> se consultan las fechas base a Oporto y a Lisboa. Además, por turnos, las otras combinaciones de ±${v.holgura} días y los itinerarios que llegan a una ciudad y vuelven desde la otra; la grilla completa se recorre en unas dos semanas.</li>
+  <li><b>Ruta.</b> Se clasifica por la primera escala fuera de Chile: Madrid, Brasil (São Paulo, Río y otras), Lima o París; lo demás queda como «Otra ruta» con sus escalas a la vista. La ruta corresponde al tramo de ida; la vuelta puede usar otra.</li>
+  <li><b>Maletas.</b> El precio de Google corresponde a la tarifa más barata, que en vuelos a Europa puede no incluir maleta en bodega. Por eso, una vez por semana se leen la tarifa y el cobro por equipaje de las tres rutas más baratas. Se consideran ${v.maletas_bodega} maletas en bodega.</li>
+  <li><b>¿Oferta real?</b> Cuando el total cae bajo el rango típico de Google y, a la vez, al menos 8 % bajo la mediana del registro propio de los últimos 30 días, con una semana o más de datos. Si solo se cumple una de las dos condiciones, se marca en amarillo.</li>
+  <li><b>Límites.</b> Google no muestra todas las tarifas de todas las agencias; lo que no publica queda sin dato, sin imputar. Los precios cambian durante el día: el registro es una foto diaria. Las respuestas originales se guardan comprimidas en <span class="num">data/raw/</span> para poder revisarlas.</li>
+  <li><b>Presupuesto.</b> Plan gratuito de SerpApi (250 búsquedas al mes): 6 consultas diarias y 6 semanales de tarifas. Si quedan pocos créditos, se mantienen solo las fechas base.</li></ul>
+  <p class="src">Registro desde ${D.registro.primera ? fdate(D.registro.primera) : '—'} · generado ${D.generado}</p>`;
+}
+
+function render(){
+  if(!D){ document.querySelector('main').innerHTML = '<div class="card empty">Sin datos: corre <span class="num">python monitor.py dashboard</span>.</div>'; return; }
+  hideTip();
+  renderVeredicto(sel); renderKpis(sel); renderSerie(sel); renderGoogle(sel); renderHeat(sel); renderTabla(sel); renderMaletas(); renderMetodo();
+}
+
+if(D){
+  $('#sub').textContent = `Concepción → Oporto / Lisboa · ${D.viaje.pasajeros.adultos} adultos + ${D.viaje.pasajeros.ninos} niño · ${fdate(D.viaje.ida)} → ${fdate(D.viaje.vuelta)} (±${D.viaje.holgura} días)`;
+  $('#gen').textContent = 'Actualizado ' + D.generado;
+  $('#hol').textContent = D.viaje.holgura;
+  const its = itinerarios();
+  sel = its[0];
+  $('#selItin').innerHTML = its.map(c => `<button data-c="${c}" class="${c===sel?'on':''}" aria-pressed="${c===sel}">${esc(nombreItin(c))}</button>`).join('');
+  document.querySelectorAll('#selItin button').forEach(b => b.onclick = () => {
+    sel = b.dataset.c;
+    document.querySelectorAll('#selItin button').forEach(x => { x.classList.toggle('on', x===b); x.setAttribute('aria-pressed', x===b); });
+    render();
+  });
+}
+render();
+window.addEventListener('resize', hideTip);
+</script>
+</body>
+</html>
