@@ -321,7 +321,7 @@ function renderKpis(clave){
   const nombreC = id => (D.corredores.find(c=>c.id===id)||{}).nombre || id;
   const k = [
     ['Mejor total hoy', hoy ? fmt(s[hoy].todos) : '—', hoy ? `${fdate(hoy)} · ${nombreC(corr[0])} · 3 pasajeros` : 'sin datos'],
-    ['Mínimo registrado', fmt(minH), minF ? `el ${fdate(minF)} · ${fechas.length} días medidos` : '—'],
+    ['Mínimo registrado', fmt(minH), minF ? `el ${fdate(minF)} · ${fechas.length} ${fechas.length===1?'día medido':'días medidos'}` : '—'],
     ['Nivel según Google', ins && ins.nivel ? (NOMBRE_NIVEL[ins.nivel]||ins.nivel) : '—', ins && ins.tipico_min ? `típico ${fmtM(+ins.tipico_min)} – ${fmtM(+ins.tipico_max)}` : 'Google no publicó rango'],
     kpiConcepcion(clave, hoy ? s[hoy].todos : null),
   ];
@@ -347,14 +347,14 @@ function renderGoogle(clave){
   const band = ins && ins.tipico_min ? [+ins.tipico_min, +ins.tipico_max] : null;
   const hoy = ultimoTodos(clave);
   if(!h.length && band && hoy){  // sin historial: precio de hoy sobre el rango típico
-    const W = 640, H = 130, m = {l:20, r:20};
+    const W = 420, H = 120, m = {l:14, r:14};
     const lo = Math.min(band[0], hoy.precio)*0.85, hi = Math.max(band[1], hoy.precio)*1.1;
     const X = v => m.l + (v-lo)/(hi-lo)*(W-m.l-m.r), ink = css('--ink-lo'), col = css('--accent');
     let g = `<line x1="${m.l}" x2="${W-m.r}" y1="70" y2="70" stroke="${css('--grid')}" stroke-width="2"/>`+
       `<rect x="${X(band[0])}" y="56" width="${X(band[1])-X(band[0])}" height="28" rx="6" fill="${css('--band')}" stroke="${css('--line-2')}"/>`+
-      `<text x="${(X(band[0])+X(band[1]))/2}" y="104" text-anchor="middle" font-size="12" fill="${ink}">rango típico ${fmtM(band[0])} – ${fmtM(band[1])}</text>`+
+      `<text x="${(X(band[0])+X(band[1]))/2}" y="106" text-anchor="middle" font-size="13" fill="${ink}">rango típico ${fmtM(band[0])} – ${fmtM(band[1])}</text>`+
       `<line x1="${X(hoy.precio)}" x2="${X(hoy.precio)}" y1="44" y2="96" stroke="${col}" stroke-width="3" stroke-linecap="round"/>`+
-      `<text x="${X(hoy.precio)}" y="34" text-anchor="middle" font-size="13" font-weight="700" fill="${css('--ink')}" font-family="IBM Plex Mono,monospace">hoy ${fmtM(hoy.precio)}</text>`;
+      `<text x="${X(hoy.precio)}" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="${css('--ink')}" font-family="IBM Plex Mono,monospace">hoy ${fmtM(hoy.precio)}</text>`;
     $('#chGoogle').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Precio de hoy dentro del rango típico de Google">${g}</svg>`+
       `<p class="exp" style="margin-top:8px">Google no publica historial para esta búsqueda; solo informa qué considera un precio típico. Hoy lo clasifica como <b>${NOMBRE_NIVEL[ins.nivel]||ins.nivel}</b>.</p>`;
     return;
