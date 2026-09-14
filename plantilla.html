@@ -136,14 +136,14 @@ td.r,th.r{text-align:right}
   <div class="grid2">
     <section class="card">
       <h3>Precio más bajo por ruta, día a día</h3>
-      <p class="exp">Cada punto es el total más barato que publicó Google Flights ese día para los tres pasajeros, en las fechas base, separado por dónde se hace la escala. Lo que interesa es la tendencia: una promoción real se ve como una caída que se sale de la banda de los días anteriores.</p>
+      <p class="exp">Cada punto es el total más barato que publicó Google Flights ese día para los tres pasajeros, en las fechas base, separado por dónde se hace la escala. Lo que interesa es la tendencia: una promoción real se ve como una caída que se sale de la banda de los días anteriores. En los itinerarios desde Santiago, la línea punteada es el pasaje único desde Concepción: la distancia entre ella y la ruta más barata, menos el tramo Concepción–Santiago, es lo que se ahorra comprando por separado.</p>
       <div class="legend" id="legSerie"></div>
       <div class="chart" id="chSerie"></div>
       <div class="src">Fuente: Google Flights vía SerpApi, registro propio. Pesos chilenos, total del grupo, pasaje sin maletas adicionales.</div>
     </section>
     <section class="card">
-      <h3>Historial y rango típico según Google</h3>
-      <p class="exp">Serie que Google guarda para esta búsqueda y la banda que considera «típica». Sirve de contraste externo antes de tener semanas de registro propio.</p>
+      <h3>Qué dice Google de este precio</h3>
+      <p class="exp">El rango que Google considera «típico» para esta búsqueda, y su historial cuando lo publica. Es el contraste externo mientras se juntan semanas de registro propio.</p>
       <div class="chart" id="chGoogle"></div>
       <div class="src">Fuente: Google Flights, <span class="num">price_insights</span>, última descarga.</div>
     </section>
@@ -207,17 +207,26 @@ function showTip(html, ev){
 const hideTip = () => tip.style.display = 'none';
 
 function nombreItin(c){
-  const q = D.claves[c], n = D.viaje.destinos;
-  return q.tipo === 'RT' ? n[q.destino] : `Llegar a ${n[q.destino]}, volver de ${n[q.vuelta_desde]}`;
+  const q = D.claves[c], n = D.viaje.destinos, o = D.viaje.origenes[q.origen];
+  if(q.origen === D.viaje.referencia) return `${o} → ${n[q.destino]} (referencia)`;
+  return q.tipo === 'RT' ? `${o} → ${n[q.destino]}` : `${o} → ${n[q.destino]}, vuelta desde ${n[q.vuelta_desde]}`;
 }
 
 function itinerarios(){
-  const base = [...D.fijas];
-  Object.values(D.claves).forEach(q => {
-    if(q.tipo==='OJ' && q.ida===D.viaje.ida && q.vuelta===D.viaje.vuelta) base.push(q.clave);
-  });
-  return base;
+  const qs = Object.values(D.claves).filter(q => q.ida===D.viaje.ida && q.vuelta===D.viaje.vuelta);
+  const rank = q => q.origen===D.viaje.referencia ? 2 : q.tipo==='OJ' ? 1 : 0;
+  const orden = q => rank(q)*10 + (q.destino===D.viaje.preferido ? 0 : 1);
+  return qs.filter(q => q.tipo==='OJ' || D.fijas.includes(q.clave)).sort((a,b)=>orden(a)-orden(b)).map(q=>q.clave);
 }
+
+/* clave de la búsqueda equivalente desde el otro origen (solo existe Concepción → destino preferido) */
+function claveGemela(clave){
+  const q = D.claves[clave]; if(q.tipo!=='RT') return null;
+  const otro = q.origen===D.viaje.referencia ? D.viaje.origen : D.viaje.referencia;
+  const k = Object.keys(D.claves).find(c => { const x = D.claves[c]; return x.tipo==='RT' && x.origen===otro && x.destino===q.destino && x.ida===q.ida && x.vuelta===q.vuelta; });
+  return k || null;
+}
+const ultimoTodos = c => { const s = serieDe(c), f = Object.keys(s).sort().pop(); return f ? {fecha:f, precio:s[f].todos} : null; };
 
 function serieDe(clave){ return D.serie[clave] || {}; }
 
@@ -248,7 +257,7 @@ function lineChart(el, series, opt={}){
   series.forEach(s => {
     if(!s.pts.length) return;
     const col = css(s.color), pts = s.pts.map(p => `${X(p[0])},${Y(p[1])}`).join(' ');
-    g += `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    g += `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"${s.dash?' stroke-dasharray="6 4"':''}/>`;
     if(s.pts.length < 40) s.pts.forEach(p => g += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3.2" fill="${col}" stroke="${surf}" stroke-width="1.5"/>`);
     const last = s.pts[s.pts.length-1]; labels.push({y:Y(last[1]), x:X(last[0]), t:s.name, c:col});
   });
@@ -292,6 +301,18 @@ function renderVeredicto(clave){
   el.innerHTML = `<div class="ico" aria-hidden="true">${ico}</div><div><h3>${tit} · ${esc(nombreItin(clave))}</h3><p>${txt} Una oferta se considera real cuando cae bajo el rango típico de Google <i>y</i> al menos 8 % bajo la mediana propia con una semana o más de registro.</p></div>`;
 }
 
+function kpiConcepcion(clave, precio){
+  const q = D.claves[clave], tn = D.viaje.tramo_nacional.referencia_clp, g = claveGemela(clave), gem = g ? ultimoTodos(g) : null;
+  if(precio == null) return ['Costo real desde Concepción', '—', 'sin datos'];
+  if(q.origen === D.viaje.referencia){
+    const alt = gem ? gem.precio + tn : null;
+    return ['Alternativa: Santiago + tramo aparte', fmt(alt), alt ? `este pasaje cuesta <b>${fmt(precio-alt)}</b> más` : 'sin dato desde Santiago'];
+  }
+  const real = precio + tn;
+  const sub = gem ? `pasaje único desde Concepción: ${fmt(gem.precio)} · <b>ahorro ${fmt(gem.precio-real)}</b>` : `incluye tramo Concepción–Santiago ${fmt(tn)}`;
+  return ['Costo real desde Concepción', fmt(real), sub];
+}
+
 function renderKpis(clave){
   const s = serieDe(clave), fechas = Object.keys(s).sort(), ins = D.insights[clave];
   const hoy = fechas[fechas.length-1];
@@ -302,7 +323,7 @@ function renderKpis(clave){
     ['Mejor total hoy', hoy ? fmt(s[hoy].todos) : '—', hoy ? `${fdate(hoy)} · ${nombreC(corr[0])} · 3 pasajeros` : 'sin datos'],
     ['Mínimo registrado', fmt(minH), minF ? `el ${fdate(minF)} · ${fechas.length} días medidos` : '—'],
     ['Nivel según Google', ins && ins.nivel ? (NOMBRE_NIVEL[ins.nivel]||ins.nivel) : '—', ins && ins.tipico_min ? `típico ${fmtM(+ins.tipico_min)} – ${fmtM(+ins.tipico_max)}` : 'Google no publicó rango'],
-    ['Créditos SerpApi', D.registro.creditos ?? '—', `${D.registro.consultas_ok} consultas en ${D.registro.dias} días${D.registro.errores?` · <b>${D.registro.errores} con error</b>`:''}`],
+    kpiConcepcion(clave, hoy ? s[hoy].todos : null),
   ];
   $('#kpis').innerHTML = k.map(([l,v,s]) => `<div class="card kpi"><div class="label">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
 }
@@ -311,23 +332,44 @@ function renderSerie(clave){
   const s = serieDe(clave), fechas = Object.keys(s).sort();
   const series = D.corredores.map(c => ({id:c.id, name:c.nombre, color:`--c-${c.id}`,
     pts: fechas.filter(f => s[f][c.id]!=null).map(f => [f, s[f][c.id]])})).filter(x => x.pts.length);
-  $('#legSerie').innerHTML = series.map(x => `<span><i style="background:${css(x.color)}"></i>${x.name}</span>`).join('');
+  const g = claveGemela(clave);
+  if(g && D.claves[clave].origen !== D.viaje.referencia){
+    const sg = serieDe(g);
+    const ref = Object.keys(sg).sort().map(f => [f, sg[f].todos]);
+    if(ref.length) series.push({id:'ref', name:'Pasaje único desde Concepción', color:'--c-todos', dash:true, pts:ref});
+  }
+  $('#legSerie').innerHTML = series.map(x => `<span><i style="${x.dash?`background:repeating-linear-gradient(90deg,${css(x.color)} 0 4px,transparent 4px 7px)`:`background:${css(x.color)}`}"></i>${x.name}</span>`).join('');
   lineChart($('#chSerie'), series, {aria:'Precio mínimo por ruta en el tiempo', vacio:'Sin registros para este itinerario todavía.'});
 }
 
 function renderGoogle(clave){
   const h = D.historial[clave] || [], ins = D.insights[clave];
   const band = ins && ins.tipico_min ? [+ins.tipico_min, +ins.tipico_max] : null;
+  const hoy = ultimoTodos(clave);
+  if(!h.length && band && hoy){  // sin historial: precio de hoy sobre el rango típico
+    const W = 640, H = 130, m = {l:20, r:20};
+    const lo = Math.min(band[0], hoy.precio)*0.85, hi = Math.max(band[1], hoy.precio)*1.1;
+    const X = v => m.l + (v-lo)/(hi-lo)*(W-m.l-m.r), ink = css('--ink-lo'), col = css('--accent');
+    let g = `<line x1="${m.l}" x2="${W-m.r}" y1="70" y2="70" stroke="${css('--grid')}" stroke-width="2"/>`+
+      `<rect x="${X(band[0])}" y="56" width="${X(band[1])-X(band[0])}" height="28" rx="6" fill="${css('--band')}" stroke="${css('--line-2')}"/>`+
+      `<text x="${(X(band[0])+X(band[1]))/2}" y="104" text-anchor="middle" font-size="12" fill="${ink}">rango típico ${fmtM(band[0])} – ${fmtM(band[1])}</text>`+
+      `<line x1="${X(hoy.precio)}" x2="${X(hoy.precio)}" y1="44" y2="96" stroke="${col}" stroke-width="3" stroke-linecap="round"/>`+
+      `<text x="${X(hoy.precio)}" y="34" text-anchor="middle" font-size="13" font-weight="700" fill="${css('--ink')}" font-family="IBM Plex Mono,monospace">hoy ${fmtM(hoy.precio)}</text>`;
+    $('#chGoogle').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Precio de hoy dentro del rango típico de Google">${g}</svg>`+
+      `<p class="exp" style="margin-top:8px">Google no publica historial para esta búsqueda; solo informa qué considera un precio típico. Hoy lo clasifica como <b>${NOMBRE_NIVEL[ins.nivel]||ins.nivel}</b>.</p>`;
+    return;
+  }
   lineChart($('#chGoogle'), [{id:'g', name:'Google', color:'--c-todos', pts:h.filter(p=>p[1]!=null)}],
     {band, aria:'Historial de precios de Google', vacio:'Google no ha publicado historial para esta búsqueda.'});
 }
 
 function renderHeat(clave){
   const q = D.claves[clave], el = $('#heat');
-  if(q.tipo !== 'RT'){ el.innerHTML = '<div class="empty">La grilla de fechas se mide para ida y vuelta a la misma ciudad. Elige Oporto o Lisboa.</div>'; return; }
+  if(q.tipo !== 'RT'){ el.innerHTML = '<div class="empty">La grilla de fechas se mide para ida y vuelta a la misma ciudad. Elige Santiago → Oporto o Santiago → Lisboa.</div>'; return; }
+  if(q.origen === D.viaje.referencia){ el.innerHTML = `<div class="empty">La grilla de fechas se mide desde ${D.viaje.origenes[D.viaje.origen]}. Desde Concepción solo se sigue la fecha base, como referencia.</div>`; return; }
   const h = D.viaje.holgura, add = (s,n) => { const d = new Date(s+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
   const idas = [], vueltas = []; for(let i=-h;i<=h;i++){ idas.push(add(D.viaje.ida,i)); vueltas.push(add(D.viaje.vuelta,i)); }
-  const cel = {}; D.grilla.filter(g => g.destino===q.destino).forEach(g => cel[g.ida+'|'+g.vuelta] = g);
+  const cel = {}; D.grilla.filter(g => g.origen===q.origen && g.destino===q.destino).forEach(g => cel[g.ida+'|'+g.vuelta] = g);
   const ps = Object.values(cel).map(g=>g.precio); const lo = Math.min(...ps), hi = Math.max(...ps);
   const ramp = ['--seq-1','--seq-2','--seq-3','--seq-4','--seq-5'].map(css);
   const ultima = D.registro.ultima;
@@ -377,13 +419,15 @@ function renderMaletas(){
 function renderMetodo(){
   const v = D.viaje;
   $('#metodo').innerHTML = `<ul>
-  <li><b>Qué se busca.</b> ${v.pasajeros.adultos} adultos y ${v.pasajeros.ninos} niño, desde Concepción (${v.origen}), ida el ${fdate(v.ida)} y vuelta el ${fdate(v.vuelta)} de 2027, a Oporto, a Lisboa y combinando ambas. Precio total del grupo en pesos chilenos, punto de venta Chile.</li>
-  <li><b>Todos los días</b> se consultan las fechas base a Oporto y a Lisboa. Además, por turnos, las otras combinaciones de ±${v.holgura} días y los itinerarios que llegan a una ciudad y vuelven desde la otra; la grilla completa se recorre en unas dos semanas.</li>
+  <li><b>Qué se busca.</b> ${v.pasajeros.adultos} adultos y ${v.pasajeros.ninos} niño, ida el ${fdate(v.ida)} y vuelta el ${fdate(v.vuelta)} de 2027, a Oporto, a Lisboa y combinando ambas. Precio total del grupo en pesos chilenos, punto de venta Chile.</li>
+  <li><b>Por qué desde Santiago.</b> El 14 sep 2026, el mismo par de vuelos (LA 706 + IB 1151) costaba $5.202.627 como pasaje único desde Concepción y $3.176.457 desde Santiago. El tramo Concepción–Santiago se compra aparte y después; para comparar se usa ${fmt(v.tramo_nacional.referencia_clp)} (ida y vuelta, 3 pasajeros, medido ese día). Comprar por separado implica que un atraso en ese tramo no lo cubre la aerolínea internacional: conviene viajar a Santiago la víspera.</li>
+  <li><b>Todos los días</b> se consultan las fechas base desde Santiago a Oporto y a Lisboa, y el pasaje único Concepción → Oporto como referencia. Además, por turnos, las otras combinaciones de ±${v.holgura} días desde Santiago y los itinerarios que llegan a una ciudad y vuelven desde la otra; la grilla completa se recorre en unos 17 días.</li>
   <li><b>Ruta.</b> Se clasifica por la primera escala fuera de Chile: Madrid, Brasil (São Paulo, Río y otras), Lima o París; lo demás queda como «Otra ruta» con sus escalas a la vista. La ruta corresponde al tramo de ida; la vuelta puede usar otra.</li>
   <li><b>Maletas.</b> El precio de Google corresponde a la tarifa más barata, que en vuelos a Europa puede no incluir maleta en bodega. Por eso, una vez por semana se leen la tarifa y el cobro por equipaje de las tres rutas más baratas. Se consideran ${v.maletas_bodega} maletas en bodega.</li>
   <li><b>¿Oferta real?</b> Cuando el total cae bajo el rango típico de Google y, a la vez, al menos 8 % bajo la mediana del registro propio de los últimos 30 días, con una semana o más de datos. Si solo se cumple una de las dos condiciones, se marca en amarillo.</li>
   <li><b>Límites.</b> Google no muestra todas las tarifas de todas las agencias; lo que no publica queda sin dato, sin imputar. Los precios cambian durante el día: el registro es una foto diaria. Las respuestas originales se guardan comprimidas en <span class="num">data/raw/</span> para poder revisarlas.</li>
-  <li><b>Presupuesto.</b> Plan gratuito de SerpApi (250 búsquedas al mes): 6 consultas diarias y 6 semanales de tarifas. Si quedan pocos créditos, se mantienen solo las fechas base.</li></ul>
+  <li><b>Presupuesto.</b> Plan gratuito de SerpApi (250 búsquedas al mes): 6 consultas diarias y 6 semanales de tarifas. Si quedan pocos créditos, se mantienen solo las fechas base. Quedan ${D.registro.creditos ?? '—'} créditos; ${D.registro.consultas_ok} consultas en ${D.registro.dias} días${D.registro.errores?`, ${D.registro.errores} con error`:''}.</li>
+  <li><b>Historial de Google.</b> Google no ha entregado historial de precios para esta ruta, solo el rango típico; la tendencia se construye con el registro propio.</li></ul>
   <p class="src">Registro desde ${D.registro.primera ? fdate(D.registro.primera) : '—'} · generado ${D.generado}</p>`;
 }
 
@@ -394,7 +438,7 @@ function render(){
 }
 
 if(D){
-  $('#sub').textContent = `Concepción → Oporto / Lisboa · ${D.viaje.pasajeros.adultos} adultos + ${D.viaje.pasajeros.ninos} niño · ${fdate(D.viaje.ida)} → ${fdate(D.viaje.vuelta)} (±${D.viaje.holgura} días)`;
+  $('#sub').textContent = `Santiago → Oporto / Lisboa · referencia desde Concepción · ${D.viaje.pasajeros.adultos} adultos + ${D.viaje.pasajeros.ninos} niño · ${fdate(D.viaje.ida)} → ${fdate(D.viaje.vuelta)} (±${D.viaje.holgura} días)`;
   $('#gen').textContent = 'Actualizado ' + D.generado;
   $('#hol').textContent = D.viaje.holgura;
   const its = itinerarios();

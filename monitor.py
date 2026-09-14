@@ -39,7 +39,7 @@ CAMPOS = {
     "consultas.csv": ["fecha", "hora_utc", "modo", "clave", "tipo", "origen", "destino", "vuelta_desde",
                       "ida", "vuelta", "estado", "n_opciones", "precio_min", "creditos_restantes",
                       "serpapi_id", "archivo_raw", "nota"],
-    "opciones.csv": ["fecha", "clave", "tipo", "destino", "vuelta_desde", "ida", "vuelta", "grupo", "orden",
+    "opciones.csv": ["fecha", "clave", "tipo", "origen", "destino", "vuelta_desde", "ida", "vuelta", "grupo", "orden",
                      "corredor", "via", "aerolineas", "vuelos", "salida", "llegada", "duracion_min",
                      "n_escalas", "precio", "extensiones"],
     "insights.csv": ["fecha", "clave", "precio_mas_bajo", "nivel", "tipico_min", "tipico_max"],
@@ -87,7 +87,7 @@ def agregar_csv(nombre, filas):
     p = DATA / nombre
     nuevo = not p.exists()
     with p.open("a", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=CAMPOS[nombre], extrasaction="ignore")
+        w = csv.DictWriter(fh, fieldnames=CAMPOS[nombre], extrasaction="ignore", lineterminator="\n")
         if nuevo:
             w.writeheader()
         w.writerows(filas)
@@ -96,7 +96,7 @@ def agregar_csv(nombre, filas):
 def escribir_csv(nombre, filas):
     DATA.mkdir(parents=True, exist_ok=True)
     with (DATA / nombre).open("w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=CAMPOS[nombre], extrasaction="ignore")
+        w = csv.DictWriter(fh, fieldnames=CAMPOS[nombre], extrasaction="ignore", lineterminator="\n")
         w.writeheader()
         w.writerows(filas)
 
@@ -126,15 +126,15 @@ def creditos(key):
 
 # ---------------------------------------------------------------- consultas
 
-def consulta_rt(destino, ida, vuelta):
-    return {"clave": f"RT-{VIAJE['origen']}-{destino}-{ida:%Y%m%d}-{vuelta:%Y%m%d}", "tipo": "RT",
-            "origen": VIAJE["origen"], "destino": destino, "vuelta_desde": destino, "ida": ida, "vuelta": vuelta}
+def consulta_rt(origen, destino, ida, vuelta):
+    return {"clave": f"RT-{origen}-{destino}-{ida:%Y%m%d}-{vuelta:%Y%m%d}", "tipo": "RT",
+            "origen": origen, "destino": destino, "vuelta_desde": destino, "ida": ida, "vuelta": vuelta}
 
 
-def consulta_oj(llega, sale, ida, vuelta):
+def consulta_oj(origen, llega, sale, ida, vuelta):
     """Open jaw: se llega a un aeropuerto y se vuelve desde el otro."""
-    return {"clave": f"OJ-{VIAJE['origen']}-{llega}-{sale}-{ida:%Y%m%d}-{vuelta:%Y%m%d}", "tipo": "OJ",
-            "origen": VIAJE["origen"], "destino": llega, "vuelta_desde": sale, "ida": ida, "vuelta": vuelta}
+    return {"clave": f"OJ-{origen}-{llega}-{sale}-{ida:%Y%m%d}-{vuelta:%Y%m%d}", "tipo": "OJ",
+            "origen": origen, "destino": llega, "vuelta_desde": sale, "ida": ida, "vuelta": vuelta}
 
 
 def fechas_canonicas():
@@ -142,18 +142,21 @@ def fechas_canonicas():
 
 
 def catalogo():
+    """fijas: todos los días · rotacion: por turnos. El tramo nacional no se consulta: se compra aparte y
+    después; para comparar se usa el valor de referencia medido que está en config.json."""
     ida0, v0 = fechas_canonicas()
     h = VIAJE["holgura_dias"]
+    o, ref = VIAJE["origen_principal"], VIAJE["origen_referencia"]
     destinos = sorted(VIAJE["destinos"], key=lambda d: d != VIAJE["destino_preferido"])
-    fijas = [consulta_rt(d, ida0, v0) for d in destinos]
+    fijas = [consulta_rt(o, d, ida0, v0) for d in destinos] + [consulta_rt(ref, destinos[0], ida0, v0)]
     a, b = destinos[0], destinos[1]
-    rotacion = [consulta_oj(a, b, ida0, v0), consulta_oj(b, a, ida0, v0)]
+    rotacion = [consulta_oj(o, a, b, ida0, v0), consulta_oj(o, b, a, ida0, v0)]
     for dd in range(-h, h + 1):
         for dv in range(-h, h + 1):
             if dd == 0 and dv == 0:
                 continue
             for d in destinos:
-                rotacion.append(consulta_rt(d, ida0 + dt.timedelta(dd), v0 + dt.timedelta(dv)))
+                rotacion.append(consulta_rt(o, d, ida0 + dt.timedelta(dd), v0 + dt.timedelta(dv)))
     return fijas, rotacion
 
 
@@ -223,7 +226,8 @@ def destilar(q, r, dia):
         escalas = [l.get("id") for l in (o.get("layovers") or []) if l.get("id")]
         aerol = list(dict.fromkeys(t.get("airline", "") for t in tramos if t.get("airline")))
         filas.append({
-            "fecha": dia.isoformat(), "clave": q["clave"], "tipo": q["tipo"], "destino": q["destino"],
+            "fecha": dia.isoformat(), "clave": q["clave"], "tipo": q["tipo"], "origen": q["origen"],
+            "destino": q["destino"],
             "vuelta_desde": q["vuelta_desde"], "ida": q["ida"].isoformat(), "vuelta": q["vuelta"].isoformat(),
             "grupo": "mejor" if grupo == "best_flights" else "otro", "orden": n,
             "corredor": corredor(escalas), "via": "-".join(escalas),
@@ -372,7 +376,7 @@ def modo_factibilidad(key):
     """Mide lo que hay que saber antes de dejarlo corriendo: si el precio es del grupo o por
     persona, qué corredores aparecen, cuánto cuesta cada tipo de llamada y qué trae el open jaw."""
     ida0, v0 = fechas_canonicas()
-    q = consulta_rt(VIAJE["destino_preferido"], ida0, v0)
+    q = consulta_rt(VIAJE["origen_principal"], VIAJE["destino_preferido"], ida0, v0)
     s0 = creditos(key)
     print(f"Créditos iniciales: {s0}")
     r, ruta = buscar(key, q, sufijo="_prueba_grupo")
@@ -393,7 +397,7 @@ def modo_factibilidad(key):
     r1, _ = buscar(key, q, {"adults": 1, "children": 0}, "_prueba_1adulto")
     print(f"[2] mismo vuelo, 1 adulto: mínimo {precio_min(destilar(q, r1, fecha_chile()))} "
           f"vs grupo {precio_min(filas)}  (si el grupo ~ 3x, el precio es total)")
-    oj = consulta_oj(VIAJE["destino_preferido"], "LIS", ida0, v0)
+    oj = consulta_oj(VIAJE["origen_principal"], VIAJE["destino_preferido"], "LIS", ida0, v0)
     ro, _ = buscar(key, oj, sufijo="_prueba")
     fo = destilar(oj, ro, fecha_chile())
     print(f"[3] open jaw {oj['clave']}: {ro.get('error') or ''} {len(fo)} opciones, mínimo {precio_min(fo)}")
@@ -432,11 +436,11 @@ def construir_dashboard():
     for f in ops:
         if f["tipo"] != "RT":
             continue
-        k = (f["destino"], f["ida"], f["vuelta"])
+        k = (f["origen"], f["destino"], f["ida"], f["vuelta"])
         g = grilla.get(k)
         p = num(f["precio"])
         if g is None or f["fecha"] > g["fecha"]:
-            grilla[k] = {"destino": f["destino"], "ida": f["ida"], "vuelta": f["vuelta"], "fecha": f["fecha"],
+            grilla[k] = {"origen": f["origen"], "destino": f["destino"], "ida": f["ida"], "vuelta": f["vuelta"], "fecha": f["fecha"],
                          "precio": p, "corredor": f["corredor"]}
         elif f["fecha"] == g["fecha"] and p < g["precio"]:
             g.update(precio=p, corredor=f["corredor"])
@@ -461,7 +465,8 @@ def construir_dashboard():
     ok = [f for f in cons if f["estado"] == "ok"]
     datos = {
         "generado": ahora().strftime("%Y-%m-%d %H:%M UTC"),
-        "viaje": {"origen": VIAJE["origen"], "pasajeros": VIAJE["pasajeros"], "maletas_bodega": VIAJE["maletas_bodega"],
+        "viaje": {"origen": VIAJE["origen_principal"], "referencia": VIAJE["origen_referencia"],
+                  "origenes": VIAJE["origenes"], "tramo_nacional": VIAJE["tramo_nacional"], "pasajeros": VIAJE["pasajeros"], "maletas_bodega": VIAJE["maletas_bodega"],
                   "ida": ida0.isoformat(), "vuelta": v0.isoformat(), "holgura": VIAJE["holgura_dias"],
                   "destinos": VIAJE["destinos"], "preferido": VIAJE["destino_preferido"], "moneda": SA["moneda"]},
         "corredores": [{"id": c["id"], "nombre": c["nombre"]} for c in CFG["corredores"]] +
