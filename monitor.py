@@ -56,7 +56,7 @@ def clave_api():
     if not k:
         f = pathlib.Path.home() / ".secrets" / "serpapi.txt"
         if f.exists():
-            k = f.read_text(encoding="utf-8").strip()
+            k = f.read_text(encoding="utf-8-sig").strip()  # -sig: el Bloc de notas puede poner BOM
     if not k:
         sys.exit("Falta la clave de SerpApi (variable SERPAPI_KEY o ~/.secrets/serpapi.txt).")
     return k

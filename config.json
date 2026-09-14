@@ -14,7 +14,7 @@
     "moneda": "CLP",
     "gl": "cl",
     "hl": "es",
-    "deep_search": true,
+    "deep_search": false,
     "rotacion_diaria": 4,
     "reserva_creditos": 12,
     "maletas_dia_semana": 6,
