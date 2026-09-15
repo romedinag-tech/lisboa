@@ -13,7 +13,10 @@
     "maletas_nota": "2 grandes (adultos) + 1 mediana (niño). Si la del niño va en cabina, cambiar a 2.",
     "ida_canonica": "2027-07-12",
     "vuelta_canonica": "2027-07-31",
-    "holgura_dias": 2,
+    "idas": ["2027-07-10", "2027-07-11", "2027-07-12", "2027-07-13", "2027-07-14"],
+    "vueltas": ["2027-07-29", "2027-07-30", "2027-07-31", "2027-08-01"],
+    "llegada_max_chile": "2027-08-01",
+    "cotas_nota": "Rodrigo 2026-09-15: salida desde Chile no antes del sáb 10 jul; llegada a Chile a más tardar el dom 1 ago. 'vueltas' son fechas de salida desde Portugal: la del 1 ago solo vale con vuelta que llegue ese mismo día (se verifica en cada consulta).",
     "destinos": {"OPO": "Oporto", "LIS": "Lisboa"},
     "destino_preferido": "OPO"
   },
@@ -24,7 +27,8 @@
     "deep_search": false,
     "rotacion_diaria": 3,
     "reserva_creditos": 12,
-    "maletas_dia_semana": 6,
+    "maletas_dia_semana": null,
+    "maletas_nota": "Pausada 2026-09-15 para que alcance el presupuesto hasta después del CyberMonday (6 créditos por lectura). Para reactivar los domingos: 6.",
     "timeout_s": 120
   },
   "corredores": [

@@ -145,19 +145,22 @@ def catalogo():
     """fijas: todos los días · rotacion: por turnos. El tramo nacional no se consulta: se compra aparte y
     después; para comparar se usa el valor de referencia medido que está en config.json."""
     ida0, v0 = fechas_canonicas()
-    h = VIAJE["holgura_dias"]
     o, ref = VIAJE["origen_principal"], VIAJE["origen_referencia"]
     destinos = sorted(VIAJE["destinos"], key=lambda d: d != VIAJE["destino_preferido"])
     fijas = [consulta_rt(o, d, ida0, v0) for d in destinos] + [consulta_rt(ref, destinos[0], ida0, v0)]
     a, b = destinos[0], destinos[1]
     rotacion = [consulta_oj(o, a, b, ida0, v0), consulta_oj(o, b, a, ida0, v0)]
-    for dd in range(-h, h + 1):
-        for dv in range(-h, h + 1):
-            if dd == 0 and dv == 0:
+    for ida in map(dt.date.fromisoformat, VIAJE["idas"]):
+        for vuelta in map(dt.date.fromisoformat, VIAJE["vueltas"]):
+            if (ida, vuelta) == (ida0, v0):
                 continue
             for d in destinos:
-                rotacion.append(consulta_rt(o, d, ida0 + dt.timedelta(dd), v0 + dt.timedelta(dv)))
+                rotacion.append(consulta_rt(o, d, ida, vuelta))
     return fijas, rotacion
+
+
+def llegada_max():
+    return dt.date.fromisoformat(VIAJE["llegada_max_chile"])
 
 
 SUFIJO_LATAM = "-LA"
@@ -305,22 +308,56 @@ def correr(key, consultas, modo):
             agregar_csv("consultas.csv", [registro(q, modo, "omitida_reserva", nota=f"saldo {saldo}")])
             continue
         # las corridas extra se repiten en el día: la hora en el nombre evita pisar la respuesta cruda anterior
-        r, ruta = buscar(key, q, sufijo="" if modo == "diario" else f"_{modo}_{dt.datetime.now():%H%M}")
+        suf = "" if modo == "diario" else f"_{modo}_{dt.datetime.now():%H%M}"
+        r, ruta = buscar(key, q, sufijo=suf)
         if r.get("error"):
             print(f"  x {q['clave']}: {r['error']}")
             agregar_csv("consultas.csv", [registro(q, modo, "error", archivo=ruta, nota=str(r["error"])[:200])])
             continue
-        filas = destilar(q, r, dia)
+        nota = ""
+        if q["tipo"] == "RT" and q["vuelta"] >= llegada_max():
+            filas, nota = verificar_vuelta(key, q, r, dia, suf)
+        else:
+            filas = destilar(q, r, dia)
         ins, h = destilar_insights(q, r, dia)
         agregar_csv("opciones.csv", filas)
         agregar_csv("insights.csv", [ins] if ins else [])
         hist += h
         saldo = creditos(key)
         agregar_csv("consultas.csv", [registro(q, modo, "ok", len(filas), precio_min(filas), saldo,
-                                               (r.get("search_metadata") or {}).get("id", ""), ruta)])
+                                               (r.get("search_metadata") or {}).get("id", ""), ruta, nota)])
         print(f"  ✓ {q['clave']}: {len(filas)} opciones, mínimo {precio_min(filas)} {SA['moneda']}, "
               f"quedan {saldo}")
     fusionar_historial(hist)
+
+
+def verificar_vuelta(key, q, r, dia, suf):
+    """Vuelta que sale de Portugal el día límite: el precio de la búsqueda de ida y vuelta puede venir de una vuelta
+    que llega a Chile al día siguiente (medido 2026-09-15: de 3 vueltas del 1 ago, 2 llegaban el 2). Se toma la ida
+    más barata, se piden sus vueltas (1 crédito más) y solo se registran las que llegan a tiempo. Si ninguna llega,
+    el día queda sin precio para esa combinación: no se rellena."""
+    idas = [o for _, _, o in opciones(r) if o.get("departure_token") and isinstance(o.get("price"), int)]
+    if not idas:
+        return [], "sin ida con departure_token para verificar la vuelta"
+    ida = min(idas, key=lambda o: o["price"])
+    base = next(f for f in destilar(q, {"best_flights": [ida]}, dia))
+    rv, _ = buscar(key, q, {"departure_token": ida["departure_token"]}, suf + "_vueltas")
+    if rv.get("error"):
+        return [], f"error al pedir vueltas: {str(rv['error'])[:120]}"
+    filas, total = [], 0
+    for grupo, n, v in opciones(rv):
+        tramos = v.get("flights") or []
+        if not tramos or not isinstance(v.get("price"), int):
+            continue
+        total += 1
+        llega = (tramos[-1].get("arrival_airport") or {}).get("time", "")
+        if not llega or dt.date.fromisoformat(llega[:10]) > llegada_max():
+            continue
+        fila = dict(base, grupo="mejor" if grupo == "best_flights" else "otro", orden=n, precio=v["price"])
+        fila["extensiones"] = (f"Vuelta verificada: {' · '.join(t.get('flight_number', '') for t in tramos)}, "
+                               f"sale {(tramos[0].get('departure_airport') or {}).get('time', '')}, llega {llega}")
+        filas.append(fila)
+    return filas, f"vuelta verificada: {len(filas)} de {total} llegan a Chile a más tardar el {llegada_max():%d-%m}"
 
 
 def registro(q, modo, estado, n="", pmin="", saldo="", sid="", archivo="", nota=""):
@@ -521,7 +558,8 @@ def construir_dashboard():
         "generado": ahora().strftime("%Y-%m-%d %H:%M UTC"),
         "viaje": {"origen": VIAJE["origen_principal"], "referencia": VIAJE["origen_referencia"],
                   "origenes": VIAJE["origenes"], "tramo_nacional": VIAJE["tramo_nacional"], "pasajeros": VIAJE["pasajeros"], "maletas_bodega": VIAJE["maletas_bodega"],
-                  "ida": ida0.isoformat(), "vuelta": v0.isoformat(), "holgura": VIAJE["holgura_dias"],
+                  "ida": ida0.isoformat(), "vuelta": v0.isoformat(), "idas": VIAJE["idas"], "vueltas": VIAJE["vueltas"],
+                  "llegada_max": VIAJE["llegada_max_chile"],
                   "destinos": VIAJE["destinos"], "preferido": VIAJE["destino_preferido"], "moneda": SA["moneda"]},
         "corredores": [{"id": c["id"], "nombre": c["nombre"]} for c in CFG["corredores"]] +
                       [{"id": "otra", "nombre": "Otra ruta"}],

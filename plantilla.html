@@ -183,9 +183,9 @@ td.r,th.r{text-align:right}
   <div class="grid2 g-heat">
     <section class="card">
       <h3>Qué fechas conviene mover</h3>
-      <p class="exp">Última observación de cada combinación de ida y vuelta con ±<span id="hol"></span> días. Más oscuro es más caro; el borde naranja marca la más barata y la línea punteada, las fechas base. La grilla completa se recorre por turnos, así que cada celda indica hace cuántos días se midió.</p>
+      <p class="exp">Última observación de cada combinación dentro de las cotas del viaje: salida desde Chile no antes del <span id="cotaIda"></span> y llegada a Chile a más tardar el <span id="cotaLlega"></span>. Más oscuro es más caro; el borde naranja marca la más barata y la línea punteada, las fechas base. La grilla se recorre por turnos, así que cada celda indica hace cuántos días se midió.</p>
       <div id="heat"></div>
-      <div class="src">Fuente: Google Flights vía SerpApi. Ida y vuelta al mismo aeropuerto.</div>
+      <div class="src">Fuente: Google Flights vía SerpApi. Ida y vuelta al mismo aeropuerto. * Salir de Portugal el último día solo sirve si la vuelta llega a Chile ese mismo día: en esa columna se consultan las vueltas y solo cuentan las que llegan a tiempo; las que llegan al día siguiente quedan fuera.</div>
     </section>
     <section class="card">
       <h3>Tarifas y equipaje</h3>
@@ -430,14 +430,13 @@ function renderHeat(clave){
   const q = D.claves[clave], el = $('#heat');
   if(q.tipo !== 'RT'){ el.innerHTML = '<div class="empty">La grilla de fechas se mide para ida y vuelta a la misma ciudad. Elige Santiago → Oporto o Santiago → Lisboa.</div>'; return; }
   if(q.origen === D.viaje.referencia){ el.innerHTML = `<div class="empty">La grilla de fechas se mide desde ${D.viaje.origenes[D.viaje.origen]}. Desde Concepción solo se sigue la fecha base, como referencia.</div>`; return; }
-  const h = D.viaje.holgura, add = (s,n) => { const d = new Date(s+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
-  const idas = [], vueltas = []; for(let i=-h;i<=h;i++){ idas.push(add(D.viaje.ida,i)); vueltas.push(add(D.viaje.vuelta,i)); }
+  const idas = D.viaje.idas, vueltas = D.viaje.vueltas;
   const cel = {}; D.grilla.filter(g => g.origen===q.origen && g.destino===q.destino).forEach(g => cel[g.ida+'|'+g.vuelta] = g);
   const ps = Object.values(cel).map(g=>g.precio); const lo = Math.min(...ps), hi = Math.max(...ps);
   const ramp = ['--seq-1','--seq-2','--seq-3','--seq-4','--seq-5'].map(css);
   const ultima = D.registro.ultima;
-  let html = `<div class="heat" style="grid-template-columns:auto repeat(${vueltas.length},minmax(0,1fr))"><div class="h">ida ↓ · vuelta →</div>`;
-  vueltas.forEach(v => html += `<div class="h">${fdate(v)}</div>`);
+  let html = `<div class="heat" style="grid-template-columns:auto repeat(${vueltas.length},minmax(0,1fr))"><div class="h">sale de Chile ↓ · vuelve de Portugal →</div>`;
+  vueltas.forEach(v => html += `<div class="h">${fdate(v)}${v===D.viaje.llegada_max?' *':''}</div>`);
   idas.forEach(i => {
     html += `<div class="hl">${fdate(i)}</div>`;
     vueltas.forEach(v => {
@@ -619,7 +618,8 @@ function renderMetodo(){
   $('#metodo').innerHTML = `<ul>
   <li><b>Qué se busca.</b> ${v.pasajeros.adultos} adultos y ${v.pasajeros.ninos} niño, ida el ${fdate(v.ida)} y vuelta el ${fdate(v.vuelta)} de 2027, a Oporto, a Lisboa y combinando ambas. Precio total del grupo en pesos chilenos, punto de venta Chile.</li>
   <li><b>Por qué desde Santiago.</b> El 14 sep 2026, el mismo par de vuelos (LA 706 + IB 1151) costaba $5.202.627 como pasaje único desde Concepción y $3.176.457 desde Santiago. El tramo Concepción–Santiago se compra aparte y después; para comparar se usa ${fmt(v.tramo_nacional.referencia_clp)} (ida y vuelta, 3 pasajeros, medido ese día). Comprar por separado implica que un atraso en ese tramo no lo cubre la aerolínea internacional: conviene viajar a Santiago la víspera.</li>
-  <li><b>Todos los días</b> se consultan las fechas base desde Santiago a Oporto y a Lisboa, y el pasaje único Concepción → Oporto como referencia. Además, por turnos, las otras combinaciones de ±${v.holgura} días desde Santiago y los itinerarios que llegan a una ciudad y vuelven desde la otra; la grilla completa se recorre en unos 17 días.</li>
+  <li><b>Todos los días</b> se consultan las fechas base desde Santiago a Oporto y a Lisboa, y el pasaje único Concepción → Oporto como referencia. Además, por turnos, las otras combinaciones de fechas desde Santiago —salida entre el ${fdate(v.idas[0])} y el ${fdate(v.idas[v.idas.length-1])}, vuelta desde Portugal entre el ${fdate(v.vueltas[0])} y el ${fdate(v.vueltas[v.vueltas.length-1])}— y los itinerarios que llegan a una ciudad y vuelven desde la otra; la grilla completa se recorre en unas dos semanas.</li>
+  <li><b>Cotas del viaje.</b> Salir de Chile no antes del ${fdate(v.idas[0])} y llegar a Chile a más tardar el ${fdate(v.llegada_max)}. Los vuelos de vuelta suelen ser nocturnos: el 15 sep 2026, de 3 vueltas saliendo de Oporto el 1 ago solo una llegaba a Santiago ese día (IB 544 + IB 113, 21:40). Por eso, cuando la vuelta sale el último día, se consultan sus vueltas y solo se registran las que llegan a tiempo; las demás quedan fuera. Para vueltas anteriores no se verifica la hora: las medidas saliendo el 31 jul llegaban a más tardar el 1 ago.</li>
   <li><b>Ruta.</b> Se clasifica por la primera escala fuera de Chile: Madrid, Brasil (São Paulo, Río y otras), Lima o París; lo demás queda como «Otra ruta» con sus escalas a la vista. La ruta corresponde al tramo de ida; la vuelta puede usar otra.</li>
   <li><b>Maletas.</b> El precio de Google corresponde a la tarifa más barata, que en vuelos a Europa puede no incluir maleta en bodega. Por eso, una vez por semana se leen la tarifa y el cobro por equipaje de las tres rutas más baratas. Se consideran ${v.maletas_bodega} maletas en bodega.</li>
   <li><b>¿Oferta real?</b> Cuando el total cae bajo el rango típico de Google y, a la vez, al menos 8 % bajo la mediana del registro propio de los últimos 30 días, con una semana o más de datos. Si solo se cumple una de las dos condiciones, se marca en amarillo.</li>
@@ -636,9 +636,10 @@ function render(){
 }
 
 if(D){
-  $('#sub').textContent = `Santiago → Oporto / Lisboa · referencia desde Concepción · ${D.viaje.pasajeros.adultos} adultos + ${D.viaje.pasajeros.ninos} niño · ${fdate(D.viaje.ida)} → ${fdate(D.viaje.vuelta)} (±${D.viaje.holgura} días)`;
+  $('#sub').textContent = `Santiago → Oporto / Lisboa · referencia desde Concepción · ${D.viaje.pasajeros.adultos} adultos + ${D.viaje.pasajeros.ninos} niño · base ${fdate(D.viaje.ida)} → ${fdate(D.viaje.vuelta)} · salida desde ${fdate(D.viaje.idas[0])}, llegada a Chile hasta ${fdate(D.viaje.llegada_max)}`;
   $('#gen').textContent = 'Actualizado ' + D.generado;
-  $('#hol').textContent = D.viaje.holgura;
+  const fdiaSem = s => new Date(s+'T12:00:00Z').toLocaleDateString('es-CL',{weekday:'long', day:'numeric', month:'long', timeZone:'UTC'}).replace(',', '');
+  $('#cotaIda').textContent = fdiaSem(D.viaje.idas[0]); $('#cotaLlega').textContent = fdiaSem(D.viaje.llegada_max);
   const its = itinerarios();
   sel = its[0];
   $('#selItin').innerHTML = its.map(c => `<button data-c="${c}" class="${c===sel?'on':''}" aria-pressed="${c===sel}">${esc(nombreItin(c))}</button>`).join('');

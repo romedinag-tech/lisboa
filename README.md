@@ -24,7 +24,7 @@ solo se consultan las fechas base.
 
 | Archivo | Contenido |
 |---|---|
-| `config.json` | pasajeros, fechas, holgura, maletas, corredores, presupuesto |
+| `config.json` | pasajeros, fechas y cotas del viaje, maletas, corredores, presupuesto |
 | `monitor.py` | consulta, destila y regenera el dashboard (solo biblioteca estándar) |
 | `plantilla.html` | dashboard; `index.html` es la plantilla con los datos incrustados |
 | `data/consultas.csv` | una fila por llamada: estado, mínimo y créditos restantes |
