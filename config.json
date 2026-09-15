@@ -16,7 +16,7 @@
     "idas": ["2027-07-10", "2027-07-11", "2027-07-12", "2027-07-13", "2027-07-14"],
     "vueltas": ["2027-07-29", "2027-07-30", "2027-07-31", "2027-08-01"],
     "llegada_max_chile": "2027-08-01",
-    "cotas_nota": "Rodrigo 2026-09-15: salida desde Chile no antes del sáb 10 jul; llegada a Chile a más tardar el dom 1 ago. 'vueltas' son fechas de salida desde Portugal: la del 1 ago solo vale con vuelta que llegue ese mismo día (se verifica en cada consulta).",
+    "cotas_nota": "Rodrigo 2026-09-15: vuelo internacional desde Chile no antes del sáb 10 jul (el tramo Concepción–Santiago puede ser la víspera, 9 jul); llegada a Chile a más tardar el dom 1 ago. 'vueltas' son fechas de salida desde Portugal: la del 1 ago solo vale con vuelta que llegue ese mismo día (se verifica en cada consulta).",
     "destinos": {"OPO": "Oporto", "LIS": "Lisboa"},
     "destino_preferido": "OPO"
   },
