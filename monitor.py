@@ -232,7 +232,7 @@ def destilar(q, r, dia):
             "grupo": "mejor" if grupo == "best_flights" else "otro", "orden": n,
             "corredor": corredor(escalas), "via": "-".join(escalas),
             "aerolineas": " / ".join(aerol),
-            "vuelos": " ".join(t.get("flight_number", "") for t in tramos),
+            "vuelos": " · ".join(t.get("flight_number", "") for t in tramos),
             "salida": (tramos[0].get("departure_airport") or {}).get("time", "") if tramos else "",
             "llegada": (tramos[-1].get("arrival_airport") or {}).get("time", "") if tramos else "",
             "duracion_min": o.get("total_duration", ""), "n_escalas": len(escalas),
@@ -463,6 +463,17 @@ def construir_dashboard():
 
     fmal = max((f["fecha"] for f in mal), default=None)
     ok = [f for f in cons if f["estado"] == "ok"]
+
+    # enlace a la misma búsqueda en Google Flights (fechas, ruta y 2 adultos + 1 niño van en el parámetro tfs)
+    urls = {}
+    for f in ok:
+        if f["archivo_raw"] and (RAIZ / f["archivo_raw"]).exists():
+            urls[f["clave"]] = f["archivo_raw"]  # queda el más reciente
+    for clave, ruta in urls.items():
+        try:
+            urls[clave] = (leer_raw(ruta).get("search_metadata") or {}).get("google_flights_url")
+        except (OSError, ValueError):
+            urls[clave] = None
     datos = {
         "generado": ahora().strftime("%Y-%m-%d %H:%M UTC"),
         "viaje": {"origen": VIAJE["origen_principal"], "referencia": VIAJE["origen_referencia"],
@@ -474,7 +485,7 @@ def construir_dashboard():
         "claves": {q["clave"]: {k: (v.isoformat() if isinstance(v, dt.date) else v) for k, v in q.items()}
                    for q in fijas + rot},
         "fijas": [q["clave"] for q in fijas],
-        "serie": serie, "grilla": list(grilla.values()), "ultimas": ultimas,
+        "serie": serie, "grilla": list(grilla.values()), "ultimas": ultimas, "urls": urls,
         "insights": insights, "historial": historial,
         "maletas": [f for f in mal if f["fecha"] == fmal],
         "registro": {"consultas_ok": len(ok), "dias": len({f["fecha"] for f in ok}),
@@ -506,7 +517,9 @@ class Tee:
 
 def git(*args):
     import subprocess
-    r = subprocess.run(["git", *args], cwd=RAIZ, capture_output=True, text=True, encoding="utf-8")
+    sin_ventana = getattr(subprocess, "CREATE_NO_WINDOW", 0)  # la tarea corre con pythonw: sin consolas emergentes
+    r = subprocess.run(["git", *args], cwd=RAIZ, capture_output=True, text=True, encoding="utf-8",
+                       creationflags=sin_ventana)
     salida = (r.stdout + r.stderr).strip()
     if salida:
         print(f"  git {' '.join(args)}: {salida}")
