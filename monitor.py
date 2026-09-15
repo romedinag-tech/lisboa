@@ -67,9 +67,9 @@ def ahora():
 
 
 def fecha_chile():
-    # Chile continental: UTC-4 en invierno, UTC-3 en verano. Para fechar el registro
-    # basta UTC-4: las corridas son a media mañana y nunca cruzan medianoche.
-    return (ahora() - dt.timedelta(hours=4)).date()
+    # Fecha local del PC, que está en hora de Chile y aplica el horario de verano. Un desfase fijo
+    # (UTC-4) fechaba la corrida de las 00:30 en verano como el día anterior.
+    return dt.datetime.now().date()
 
 
 def leer_csv(nombre):
@@ -160,6 +160,19 @@ def catalogo():
     return fijas, rotacion
 
 
+SUFIJO_LATAM = "-LA"
+
+
+def consulta_latam():
+    """Santiago → Lisboa en fechas base, solo LATAM: el único destino con itinerario 100 % LATAM (medido 2026-09-15).
+    Se usa en las corridas extra del CyberMonday para no depender de que la búsqueda general muestre LATAM."""
+    ida0, v0 = fechas_canonicas()
+    q = consulta_rt(VIAJE["origen_principal"], "LIS", ida0, v0)
+    q["clave"] += SUFIJO_LATAM
+    q["filtro"] = "LA"
+    return q
+
+
 def plan_del_dia(dia):
     fijas, rot = catalogo()
     k = SA["rotacion_diaria"]
@@ -172,6 +185,8 @@ def parametros(q, extra=None):
          "children": VIAJE["pasajeros"]["ninos"], "currency": SA["moneda"], "gl": SA["gl"], "hl": SA["hl"]}
     if SA.get("deep_search"):
         p["deep_search"] = "true"
+    if q.get("filtro"):
+        p["include_airlines"] = q["filtro"]
     if q["tipo"] == "RT":
         p.update({"type": 1, "departure_id": q["origen"], "arrival_id": q["destino"],
                   "outbound_date": q["ida"].isoformat(), "return_date": q["vuelta"].isoformat()})
@@ -289,7 +304,8 @@ def correr(key, consultas, modo):
             print(f"  ! {q['clave']} omitida: quedan {saldo} créditos (reserva {SA['reserva_creditos']})")
             agregar_csv("consultas.csv", [registro(q, modo, "omitida_reserva", nota=f"saldo {saldo}")])
             continue
-        r, ruta = buscar(key, q)
+        # las corridas extra se repiten en el día: la hora en el nombre evita pisar la respuesta cruda anterior
+        r, ruta = buscar(key, q, sufijo="" if modo == "diario" else f"_{modo}_{dt.datetime.now():%H%M}")
         if r.get("error"):
             print(f"  x {q['clave']}: {r['error']}")
             agregar_csv("consultas.csv", [registro(q, modo, "error", archivo=ruta, nota=str(r["error"])[:200])])
@@ -425,7 +441,9 @@ def num(x):
 
 def construir_dashboard():
     cons = leer_csv("consultas.csv")
-    ops = [f for f in leer_csv("opciones.csv") if num(f["precio"]) is not None]
+    ops_todas = [f for f in leer_csv("opciones.csv") if num(f["precio"]) is not None]
+    # las búsquedas filtradas por aerolínea no representan el mercado: solo alimentan el seguimiento LATAM
+    ops = [f for f in ops_todas if not f["clave"].endswith(SUFIJO_LATAM)]
     ins = leer_csv("insights.csv")
     hist = leer_csv("historial_google.csv")
     mal = leer_csv("maletas.csv")
@@ -456,13 +474,14 @@ def construir_dashboard():
 
     # seguimiento LATAM (sale de las mismas búsquedas, sin créditos extra): mínimo diario de itinerarios
     # 100 % LATAM y de itinerarios con al menos un tramo LATAM. Un día en que Google no muestre LATAM queda vacío.
+    # Incluye las búsquedas filtradas por LATAM de los días Cyber (clave con sufijo -LA), sumadas a su búsqueda base.
     latam = {}
-    for f in ops:
+    for f in ops_todas:
         cods = [v.split()[0] for v in vuelos_de(f["vuelos"])]
         if not cods or not any(c in LATAM for c in cods):
             continue
         tipo = "todo" if all(c in LATAM for c in cods) else "con"
-        d = latam.setdefault(f["clave"], {}).setdefault(f["fecha"], {})
+        d = latam.setdefault(f["clave"].removesuffix(SUFIJO_LATAM), {}).setdefault(f["fecha"], {})
         p = num(f["precio"])
         if tipo not in d or p < d[tipo]["precio"]:
             d[tipo] = {"precio": p, "vuelos": " · ".join(vuelos_de(f["vuelos"])), "via": f["via"],
@@ -565,7 +584,7 @@ def publicar():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("modo", choices=["diario", "fijas", "maletas", "factibilidad", "dashboard", "plan"])
+    ap.add_argument("modo", choices=["diario", "fijas", "cyber", "maletas", "factibilidad", "dashboard", "plan"])
     ap.add_argument("--dias", type=int, default=3)
     ap.add_argument("--publicar", action="store_true", help="commit y push de data/ e index.html al terminar")
     a = ap.parse_args()
@@ -599,8 +618,11 @@ def ejecutar(a):
         if fecha_chile().weekday() == SA["maletas_dia_semana"]:
             modo_maletas(key)
     elif a.modo == "fijas":
-        # corrida extra (p. ej. durante un Cyber): solo fechas base, se puede repetir en el día
+        # corrida extra: solo fechas base, se puede repetir en el día
         correr(key, catalogo()[0], "fijas")
+    elif a.modo == "cyber":
+        # corridas extra del CyberMonday (5-7 oct 2026): fechas base + Santiago → Lisboa solo LATAM = 4 créditos
+        correr(key, catalogo()[0] + [consulta_latam()], "cyber")
     elif a.modo == "maletas":
         modo_maletas(key)
     construir_dashboard()
