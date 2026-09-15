@@ -407,6 +407,15 @@ def modo_factibilidad(key):
 
 # ---------------------------------------------------------------- dashboard
 
+# códigos IATA del grupo LATAM (Chile, Brasil, Perú, Ecuador, Colombia, Argentina, Paraguay)
+LATAM = {"LA", "JJ", "LP", "XL", "4C", "4M", "PZ"}
+
+
+def vuelos_de(texto):
+    """'IB 118 · IB 543' (formato actual) o 'IB 118 IB 543' (registros del 14 y 15 sep)."""
+    return re.findall(r"[A-Z0-9]{2} \d{1,4}", texto or "")
+
+
 def num(x):
     try:
         return int(float(x))
@@ -444,6 +453,21 @@ def construir_dashboard():
                          "precio": p, "corredor": f["corredor"]}
         elif f["fecha"] == g["fecha"] and p < g["precio"]:
             g.update(precio=p, corredor=f["corredor"])
+
+    # seguimiento LATAM (sale de las mismas búsquedas, sin créditos extra): mínimo diario de itinerarios
+    # 100 % LATAM y de itinerarios con al menos un tramo LATAM. Un día en que Google no muestre LATAM queda vacío.
+    latam = {}
+    for f in ops:
+        cods = [v.split()[0] for v in vuelos_de(f["vuelos"])]
+        if not cods or not any(c in LATAM for c in cods):
+            continue
+        tipo = "todo" if all(c in LATAM for c in cods) else "con"
+        d = latam.setdefault(f["clave"], {}).setdefault(f["fecha"], {})
+        p = num(f["precio"])
+        if tipo not in d or p < d[tipo]["precio"]:
+            d[tipo] = {"precio": p, "vuelos": " · ".join(vuelos_de(f["vuelos"])), "via": f["via"],
+                       "aerolineas": f["aerolineas"], "salida": f["salida"], "llegada": f["llegada"],
+                       "duracion_min": f["duracion_min"]}
 
     # opciones del último registro de cada clave
     ultimas = {}
@@ -485,7 +509,7 @@ def construir_dashboard():
         "claves": {q["clave"]: {k: (v.isoformat() if isinstance(v, dt.date) else v) for k, v in q.items()}
                    for q in fijas + rot},
         "fijas": [q["clave"] for q in fijas],
-        "serie": serie, "grilla": list(grilla.values()), "ultimas": ultimas, "urls": urls,
+        "serie": serie, "grilla": list(grilla.values()), "ultimas": ultimas, "urls": urls, "latam": latam,
         "insights": insights, "historial": historial,
         "maletas": [f for f in mal if f["fecha"] == fmal],
         "registro": {"consultas_ok": len(ok), "dias": len({f["fecha"] for f in ok}),

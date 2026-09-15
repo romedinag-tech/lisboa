@@ -23,6 +23,7 @@
   --grid:#e8ecf2;--band:rgba(31,111,235,.10);
   /* corredores: paleta categórica validada (orden fijo) */
   --c-madrid:#2a78d6;--c-brasil:#1baf7a;--c-lima:#eda100;--c-paris:#e87ba4;--c-otra:#4a3aa7;--c-todos:#0E2338;
+  --latam:#e34948;
 }
 :root[data-theme="dark"]{
   --paper:#0a0d13;--surface:#151c27;--surface-alt:#1a212c;--line:#232c3a;--line-2:#2b3547;
@@ -36,6 +37,7 @@
   --seq-1:#1b2636;--seq-2:#23466e;--seq-3:#2f67a3;--seq-4:#5598e7;--seq-5:#9ec5f4;
   --grid:#232c3a;--band:rgba(85,152,231,.16);
   --c-madrid:#3987e5;--c-brasil:#199e70;--c-lima:#c98500;--c-paris:#d55181;--c-otra:#9085e9;--c-todos:#e9eef5;
+  --latam:#e66767;
 }
 *{box-sizing:border-box}
 body{font-family:var(--font-ui);background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5;margin:0;
@@ -167,6 +169,17 @@ td.r,th.r{text-align:right}
     </section>
   </div>
 
+  <div class="grid2" id="secLatam">
+    <section class="card">
+      <h3>Seguimiento LATAM</h3>
+      <p class="exp">LATAM participa en el CyberMonday (5 al 7 de octubre), así que se sigue aparte. La línea continua es el itinerario más barato operado completo por LATAM; la punteada, el más barato que combina un tramo LATAM con otra aerolínea; la gris, el más barato de todas las aerolíneas, como referencia. Un día sin punto es un día en que Google no mostró esa alternativa: queda vacío, no se rellena.</p>
+      <div class="legend" id="legLatam"></div>
+      <div class="chart" id="chLatam"></div>
+      <div class="src">Fuente: las mismas búsquedas diarias en Google Flights vía SerpApi, filtradas por código de vuelo del grupo LATAM (LA, JJ, LP, XL, 4C, 4M, PZ). Total del grupo en pesos chilenos.</div>
+    </section>
+    <section class="card" id="resLatam"></section>
+  </div>
+
   <div class="grid2 g-heat">
     <section class="card">
       <h3>Qué fechas conviene mover</h3>
@@ -285,7 +298,7 @@ function lineChart(el, series, opt={}){
   series.forEach(s => {
     if(!s.pts.length) return;
     const col = css(s.color), pts = s.pts.map(p => `${X(p[0])},${Y(p[1])}`).join(' ');
-    g += `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"${s.dash?' stroke-dasharray="6 4"':''}/>`;
+    g += `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"${s.dash?' stroke-dasharray="6 4"':s.dot?' stroke-dasharray="1.5 4"':''}/>`;
     if(s.pts.length < 40) s.pts.forEach(p => g += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3.2" fill="${col}" stroke="${surf}" stroke-width="1.5"/>`);
     const last = s.pts[s.pts.length-1]; labels.push({y:Y(last[1]), x:X(last[0]), t:s.name, c:col});
   });
@@ -465,6 +478,47 @@ function renderTabla(clave){
   });
 }
 
+/* ---------- seguimiento LATAM ---------- */
+function urlLatam(q){
+  if(q.tipo !== 'RT') return null;
+  const p = new URLSearchParams({origin:q.origen, inbound:`${q.vuelta}T12:00:00.000Z`, outbound:`${q.ida}T12:00:00.000Z`, destination:q.destino,
+    adt:D.viaje.pasajeros.adultos, chd:D.viaje.pasajeros.ninos, inf:0, trip:'RT', cabin:'Economy', redemption:'false', sort:'RECOMMENDED'});
+  return `https://www.latamairlines.com/cl/es/ofertas-vuelos?${p}`;
+}
+function renderLatam(clave){
+  const q = D.claves[clave], L = (D.latam||{})[clave] || {}, s = serieDe(clave);
+  const fechas = [...new Set([...Object.keys(L), ...Object.keys(s)])].sort();
+  const series = [
+    {id:'gen', name:'Más barato, todas las aerolíneas', color:'--ink-lo', dash:true, pts: fechas.filter(f=>s[f]).map(f=>[f, s[f].todos])},
+    {id:'todo', name:'100 % LATAM', color:'--latam', pts: fechas.filter(f=>L[f]&&L[f].todo).map(f=>[f, L[f].todo.precio])},
+    {id:'con', name:'Con un tramo LATAM', color:'--latam', dot:true, pts: fechas.filter(f=>L[f]&&L[f].con).map(f=>[f, L[f].con.precio])},
+  ].filter(x => x.pts.length);
+  const pat = x => x.dot ? `repeating-linear-gradient(90deg,${css(x.color)} 0 2px,transparent 2px 5px)` : x.dash ? `repeating-linear-gradient(90deg,${css(x.color)} 0 5px,transparent 5px 8px)` : css(x.color);
+  $('#legLatam').innerHTML = series.map(x => `<span><i style="background:${pat(x)}"></i>${x.name}</span>`).join('');
+  lineChart($('#chLatam'), series, {aria:'Seguimiento de precios LATAM', vacio:'Sin registros para este itinerario todavía.'});
+
+  const ult = fechas.filter(f => L[f]).pop(), gU = fechas.filter(f => s[f]).pop();
+  const fila = (a,b) => `<div class="row" style="display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line)"><span style="color:var(--ink-mid)">${a}</span><span class="num" style="text-align:right">${b}</span></div>`;
+  const bloque = (tipo, titulo) => {
+    const fs = fechas.filter(f => L[f] && L[f][tipo]);
+    if(!fs.length) return `<p class="exp" style="margin:.6rem 0"><b>${titulo}:</b> ${tipo==='todo' && q.destino==='OPO' ? 'LATAM no tiene itinerario propio a Oporto en los registros; solo aparece combinado con Iberia o Air Europa.' : 'sin registros para este itinerario.'}</p>`;
+    const f = fs[fs.length-1], o = L[f][tipo], prev = fs.length > 1 ? L[fs[fs.length-2]][tipo].precio : null;
+    const min = Math.min(...fs.map(x => L[x][tipo].precio));
+    const vsGen = s[f] ? o.precio - s[f].todos : null;
+    return `<h3 style="font-size:1rem;margin:14px 0 4px">${titulo}</h3>` +
+      fila('Último total', `<b>${fmt(o.precio)}</b> · ${fdate(f)}`) +
+      fila('Vuelos de ida', `${esc(o.vuelos)} · ${esc(o.via||'directo')}`) +
+      fila('Sale → llega', `${fhora(o.salida)} → ${fhora(o.llegada)}`) +
+      fila('Contra el día anterior medido', prev==null ? '—' : `${o.precio<prev?'▼':o.precio>prev?'▲':'='} ${fmt(Math.abs(o.precio-prev))}`) +
+      fila('Contra el más barato del día', vsGen==null ? '—' : vsGen===0 ? 'es el más barato' : `${fmt(vsGen)} más`) +
+      fila('Mínimo registrado', fmt(min));
+  };
+  const uL = urlLatam(q), uG = D.urls && D.urls[clave];
+  $('#resLatam').innerHTML = `<h3>LATAM · ${esc(nombreItin(clave))}</h3>` + bloque('todo', '100 % LATAM') + bloque('con', 'Con un tramo LATAM') +
+    `<p style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px 16px">${uL?`<a class="lnk" href="${esc(uL)}" target="_blank" rel="noopener">Buscar en latam.com ↗</a>`:''}${uG?`<a class="lnk" href="${esc(uG)}" target="_blank" rel="noopener">Ver en Google Flights ↗</a>`:''}</p>` +
+    `<p class="src">El enlace a latam.com carga ruta, fechas y ${D.viaje.pasajeros.adultos} adultos + ${D.viaje.pasajeros.ninos} niño. Los descuentos de un Cyber de LATAM pueden no aplicar a itinerarios combinados con otra aerolínea: confirmar en latam.com.</p>`;
+}
+
 /* ---------- evolución de cada combinación ---------- */
 let grupoCombo = null, selCombo = null, hoverCombo = null;
 const GRUPOS = [['rt-OPO','Santiago → Oporto'],['rt-LIS','Santiago → Lisboa'],['oj','Vuelta desde otra ciudad'],['ref','Concepción (referencia)'],['todas','Todas']];
@@ -578,7 +632,7 @@ function renderMetodo(){
 function render(){
   if(!D){ document.querySelector('main').innerHTML = '<div class="card empty">Sin datos: corre <span class="num">python monitor.py dashboard</span>.</div>'; return; }
   hideTip();
-  renderVeredicto(sel); renderKpis(sel); renderSerie(sel); renderGoogle(sel); renderHeat(sel); renderCombos(); renderTabla(sel); renderMaletas(); renderMetodo();
+  renderVeredicto(sel); renderKpis(sel); renderSerie(sel); renderGoogle(sel); renderLatam(sel); renderHeat(sel); renderCombos(); renderTabla(sel); renderMaletas(); renderMetodo();
 }
 
 if(D){
